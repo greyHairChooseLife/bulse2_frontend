@@ -1,3 +1,14 @@
-.App {
-  text-align: center;
+body {
+	margin: 0;
+}
+
+.vertical {
+	position: absolute;
+	width: 2px;
+	height: 70vh;
+	background-color: black;
+}
+.vertical {
+	left: 50vw;
+	top: 15vh;
 }

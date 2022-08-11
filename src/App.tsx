@@ -1,14 +1,12 @@
 import React from 'react';
+import { Calendar } from './component/Calendar';
 import './App.css';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <p>
-			hey sangyeon!
-        </p>
-      </header>
+		<Calendar></Calendar>
+		<div className="vertical"></div>
     </div>
   );
 }

@@ -56,6 +56,7 @@ export const Calendar = (props: IcalendarPrpps) => {
 interface IscheduleProps {
 	theDay: string
 	setSession: any
+	setPageMode: any
 }
 
 export const Schedule = (props: IscheduleProps) => {
@@ -90,10 +91,22 @@ export const Schedule = (props: IscheduleProps) => {
 		getTodayReservation();
 	}, [theDay])
 
-	const makeNewProjectComponent = (sessionNumber: number) => { return <button onClick={() => props.setSession(sessionNumber)}>새로운 제안하기</button>; }
-	const makePendingComponent = () => { return <div onClick={() => {}}>관리자 승인을 기다리는 중입니다.</div> }
-	const makeRecruitingComponent = () => { return <div onClick={() => {}}>참석자 모집 중입니다.</div> }
-	const makeConfirmedComponent = () => { return <div onClick={() => {}}>확정된 일정입니다.</div> }
+	const makeNewProjectComponent = (sessionNumber: number) => { return <button onClick={() => {
+		props.setSession(sessionNumber)
+		props.setPageMode('createProject');
+	}}>새로운 제안하기</button>; }
+
+	const makePendingComponent = () => { return <div onClick={() => {
+		props.setPageMode('readProject');
+	}}>관리자 승인을 기다리는 중입니다.</div> }
+
+	const makeRecruitingComponent = () => { return <div onClick={() => {
+		props.setPageMode('readProject');
+	}}>참석자 모집 중입니다.</div> }
+
+	const makeConfirmedComponent = () => { return <div onClick={() => {
+		props.setPageMode('readProject');
+	}}>확정된 일정입니다.</div> }
 
 	//	선택 된 날짜의 3개 스케쥴(세션) 상태에 따라 걸맞는 컴포넌트를 생성 해 준다.
 	useEffect(() => {

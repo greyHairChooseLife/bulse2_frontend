@@ -2,24 +2,18 @@ body {
 	margin: 0;
 }
 
-.vertical {
-	position: absolute;
-	width: 2px;
-	height: 70vh;
-	background-color: black;
-}
-.vertical {
-	left: 50vw;
-	top: 10%;
-}
-
 .App>div:nth-child(1) {
 	position: absolute;
-	top: 10%;
-	left: 2.5vw;
+	top: 5%;
+	left: 5%;
+}
+.App>div:nth-child(2) {
+	position: absolute;
+	top: calc(5% + 30vh + 10%);
+	left: 5%;
 }
 .App>div:nth-child(3) {
 	position: absolute;
 	top: 10%;
-	right: 2.5vw;
+	left: 40%;
 }

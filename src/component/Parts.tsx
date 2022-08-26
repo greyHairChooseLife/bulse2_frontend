@@ -55,6 +55,7 @@ export const Calendar = (props: IcalendarPrpps) => {
 
 interface IscheduleProps {
 	theDay: string
+	setSession: any
 }
 
 export const Schedule = (props: IscheduleProps) => {
@@ -84,12 +85,12 @@ export const Schedule = (props: IscheduleProps) => {
 		setters.forEach((ele: any) => ele(null));
 		const getTodayReservation = async () => {
 			const result = await api.get(`/project?theDay=${theDay}`);
-			result.data.forEach((ele: any) => setters[ele.time-1](ele.status));
+			result.data.forEach((ele: any) => setters[ele.session-1](ele.status));
 		}
 		getTodayReservation();
 	}, [theDay])
 
-	const makeNewProjectComponent = () => { return <button>새로운 제안하기</button>; }
+	const makeNewProjectComponent = (sessionNumber: number) => { return <button onClick={() => props.setSession(sessionNumber)}>새로운 제안하기</button>; }
 	const makePendingComponent = () => { return <div onClick={() => {}}>관리자 승인을 기다리는 중입니다.</div> }
 	const makeRecruitingComponent = () => { return <div onClick={() => {}}>참석자 모집 중입니다.</div> }
 	const makeConfirmedComponent = () => { return <div onClick={() => {}}>확정된 일정입니다.</div> }
@@ -98,7 +99,7 @@ export const Schedule = (props: IscheduleProps) => {
 	useEffect(() => {
 		const statuses = [schedule1Status, schedule2Status, schedule3Status];
 		const setters = [setSchedule1Component, setSchedule2Component, setSchedule3Component];
-		setters.forEach((ele: any) => ele(makeNewProjectComponent()));
+		setters.forEach((ele: any, idx: number) => ele(makeNewProjectComponent(idx+1)));
 		statuses.forEach((ele: any, idx: number) => {
 			switch(ele){
 				case 'pending':
@@ -115,10 +116,111 @@ export const Schedule = (props: IscheduleProps) => {
 	}, [schedule1Status, schedule2Status, schedule3Status]);
 
 	return (
-		<div className="PlannerBox">
+		<div className="ScheduleBox">
 			<div>{schedule1Component}<p>13:00 ~ 15:00</p></div>
 			<div>{schedule2Component}<p>16:00 ~ 18:00</p></div>
 			<div>{schedule3Component}<p>19:00 ~ 21:00</p></div>
 		</div>
 	);
+}
+
+
+
+interface IidentityProps {
+	setIdentity: any
+}
+export const Identity = (props: IidentityProps) => {
+
+	const defaultValue = {
+		name: '',
+		mobileNumber: '',
+	}
+
+	const [ name, setName ] = useState(defaultValue.name);
+	const [ mobileNumber, setMobileNumber ] = useState(defaultValue.mobileNumber);
+
+	const onChangeInput = (e: any) => {
+		switch(e.target.name){
+			case 'name':
+				setName(e.target.value);
+				break;
+			case 'mobileNumber':
+				setMobileNumber(e.target.value);
+				break;
+		}
+	}
+
+	return (
+		<div className="IdentityBox">
+			<form onSubmit={(e: any) => {
+				e.preventDefault();
+				props.setIdentity({name: name, mobileNumber: mobileNumber});
+				}}>
+				<label>name</label>
+				<input name="name" onChange={onChangeInput}></input>
+				<label>mobile number</label>
+				<input name="mobileNumber" onChange={onChangeInput}></input>
+				<input type="submit"></input>
+			</form>
+		</div>
+	)
+}
+
+
+interface IproposeProps {
+	theDay: string
+	session: number | undefined
+	identity: {name: string, mobileNumber: string} | undefined
+}
+export const Propose = (props: IproposeProps) => {
+
+	const defaultValue = {
+		theDay: props.theDay,
+		subject: '',
+		content: '',
+	}
+
+	const [ theDay, setTheDay ] = useState(defaultValue.theDay);
+	useEffect(() => {setTheDay(props.theDay)}, [props.theDay]);
+
+	const [ subject, setSubject ] = useState(defaultValue.subject);
+	const [ content, setContent ] = useState(defaultValue.content);
+
+	const onChangeInput = (e: any) => {
+		switch(e.target.name){
+			case 'subject':
+				setSubject(e.target.value);
+				break;
+			case 'content':
+				setContent(e.target.value);
+				break;
+		}
+	}
+
+	//	identity, theDay, subject, content를 axios통신해서 서버에 저장한다.
+	const onSubmitForm = () => {
+		const proposed = {
+			identity: props.identity,
+			subject: subject,
+			content: content,
+			theDay: theDay,
+			session: props.session
+		}
+		api.post(`/project`, proposed);
+	}
+
+	return (
+		<div className="ProposeBox">
+			<form onSubmit={(e: any) => {
+				e.preventDefault();
+				onSubmitForm();
+				}}>
+				<label>제목</label>
+				<input name="subject" onChange={onChangeInput}></input>
+				<label>내용</label>
+				<textarea name="content" onChange={onChangeInput}></textarea>
+				<input type='submit' value="등록하기"></input>
+			</form>
+		</div>
+	)
 }

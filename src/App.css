@@ -10,5 +10,16 @@ body {
 }
 .vertical {
 	left: 50vw;
-	top: 15vh;
+	top: 10%;
+}
+
+.App>div:nth-child(1) {
+	position: absolute;
+	top: 10%;
+	left: 2.5vw;
+}
+.App>div:nth-child(3) {
+	position: absolute;
+	top: 10%;
+	right: 2.5vw;
 }

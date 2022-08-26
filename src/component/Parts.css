@@ -1,6 +1,11 @@
+/*
+ *  Calendar Component
+ */
+ 
 .CalendarBox {
 	width: 45vw;
 	height: 70vh;
+	border: solid 2px black;
 }
 
 .CalendarDays {
@@ -36,3 +41,20 @@
 	height: 5vh;
 }
 
+
+/*
+ *  Planner Component
+ */
+
+.PlannerBox {
+	width: 45vw;
+	height: 70vh;
+	border: solid 2px black;
+}
+
+.PlannerBox>div {
+	border: solid 2px white;
+	width: 80%;
+	height: 20%;
+	background-color: limegreen;
+}

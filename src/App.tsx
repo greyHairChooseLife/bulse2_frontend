@@ -7,6 +7,7 @@ const today = new Date();
 function App() {
 
 	const [ theDay, setTheDay ] = useState<string>(`${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`);
+	console.log('theDay: ', theDay);
 	const [ session, setSession ] = useState<number | undefined>(undefined);
 
 	type identityType = {

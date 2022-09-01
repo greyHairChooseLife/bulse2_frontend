@@ -34,7 +34,7 @@ export const Calendar = (props: IcalendarPrpps) => {
 	for(var i=0; i<lastDate.getDate(); i++) days.push(i+1);
 
 	days = days.map((ele, i) => {
-		return <div key={"EachDay"+i} className="EachDay" onClick={() => {props.setTheDay(`${today.getFullYear()}-${today.getMonth()+1}-${i}`)}}>{ele}</div>;
+		return <div key={"EachDay"+i} className="EachDay" onClick={() => {if(i-skippingCount+2 >= 1) props.setTheDay(`${today.getFullYear()}-${today.getMonth()+1}-${i-skippingCount+2}`)}}>{ele}</div>;
 	})
 //  for문 대신 map 매소드를 이용하면 각 반복마다의 고유한 index값을 사용하기 쉽다.
 //	for(var i=0; i<lastDate.getDate(); i++){

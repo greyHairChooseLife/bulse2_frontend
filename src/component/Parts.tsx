@@ -28,9 +28,8 @@ export const Calendar = (props: IcalendarPrpps) => {
 	const lastDate = new Date(today.getFullYear(), today.getMonth()+1, 0); 		//이달의 마지막 날
 	const skippingCount = firstOf.getDay();		//건너뛰어야 할 날(요일) 개수
 
-	for(var j=0; j<skippingCount; j++){
-		days.push(<div key={"SkippingDays"+j} className="SkippingDays"></div>)
-	}
+	//	0부터 적용하면 맨 앞에 일요일을 넣겠다는 것이다. 나는 월요일부터 표시하니까 1로 시작
+	for(var j=1; j<skippingCount; j++) days.push(<div key={"SkippingDays"+j} className="SkippingDays"></div>)
 
 	for(var i=0; i<lastDate.getDate(); i++) days.push(i+1);
 

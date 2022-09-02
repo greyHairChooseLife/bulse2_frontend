@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Schedule, Identity, Propose, ReadProject } from './component/Parts';
+import { Calendar } from './component/Parts/Calendar';
+import { Schedule } from './component/Parts/Schedule';
+import { GetIdentity, CreateProject, ReadProject, UpdateProject, DeleteProject } from './component/Parts/Propose';
 import './App.css';
 
 const today = new Date();
@@ -39,14 +41,14 @@ function App() {
 			page = <ReadProject theDay={theDay} session={session} />
 			break;
 		case 'createProject':
-			if(!isIdentified) page = <Identity setIdentity={setIdentity} session={session} />;
-			else page = <Propose theDay={theDay} session={session} identity={identity} />;
+			if(!isIdentified) page = <GetIdentity setIdentity={setIdentity} session={session} />;
+			else page = <CreateProject theDay={theDay} session={session} identity={identity} />;
 			break;
 		case 'updateProject':
-			page = <div>update Project Component</div>;
+			page = <UpdateProject />
 			break;
 		case 'deleteProject':
-			page = <div>delete Project Component</div>;
+			page = <DeleteProject />
 			break;
 	}
 

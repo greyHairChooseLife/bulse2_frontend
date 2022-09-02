@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Schedule, Identity, Propose } from './component/Parts';
+import { Calendar, Schedule, Identity, Propose, ReadProject } from './component/Parts';
 import './App.css';
 
 const today = new Date();
@@ -7,8 +7,8 @@ const today = new Date();
 function App() {
 
 	const [ theDay, setTheDay ] = useState<string>(`${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`);
-	console.log('theDay: ', theDay);
-	const [ session, setSession ] = useState<number | undefined>(undefined);
+	type sessionType = 1 | 2 | 3 | undefined;
+	const [ session, setSession ] = useState<sessionType>(undefined);
 
 	type identityType = {
 		name: string,
@@ -27,6 +27,7 @@ function App() {
 	}, [identity])
 
 	useEffect(() => {setPageMode('logo')}, [theDay])
+	useEffect(() => {setIsIdentified(false)}, [session])
 
 	//	pageMode에 따라 page(화면 우측의 메인 콘텐츠 제공 영역)에 보여줄 하위 컴포넌트를 생성한다.
 	let page: JSX.Element | null = null;
@@ -35,10 +36,10 @@ function App() {
 			page = <img src="image/bird.png"/>;
 			break;
 		case 'readProject':
-			page = <div>read Project Component</div>;
+			page = <ReadProject theDay={theDay} session={session} />
 			break;
 		case 'createProject':
-			if(!isIdentified) page = <Identity setIdentity={setIdentity} />;
+			if(!isIdentified) page = <Identity setIdentity={setIdentity} session={session} />;
 			else page = <Propose theDay={theDay} session={session} identity={identity} />;
 			break;
 		case 'updateProject':
@@ -52,10 +53,10 @@ function App() {
 	return (
 		<div className="App">
 			<div>
-				<Calendar setTheDay={setTheDay}></Calendar>
+				<Calendar setTheDay={setTheDay} setSession={setSession} setPageMode={setPageMode} pageMode={pageMode} />
 			</div>
 			<div>
-				<Schedule theDay={theDay} setSession={setSession} setPageMode={setPageMode}></Schedule>
+				<Schedule theDay={theDay} setSession={setSession} setPageMode={setPageMode} />
 			</div>
 			<div>
 				{page}

@@ -13,7 +13,6 @@ interface IscheduleProps {
 	setPageMode: any
 }
 export const Schedule = (props: IscheduleProps) => {
-
 	const [ cookies, setCookie, removeCookie ] = useCookies(['checkOverlapLike']);
 	const defaultValue = {
 		addOnSwitch: [false, false, false],
@@ -248,7 +247,7 @@ export const Schedule = (props: IscheduleProps) => {
 					: [result.data.affected.item]
 				}
 
-				setCookie('checkOverlapLike', JSON.stringify(accumulatedLikeRecord), {path: '/', maxAge: 60*60});	//	1시간 동안 유효
+				setCookie('checkOverlapLike', accumulatedLikeRecord, {path: '/', maxAge: 60*60});	//	1시간 동안 유효
 				setLikedList([...likedList, [props.theDay, sessionNumber]]);
 			}
 		},

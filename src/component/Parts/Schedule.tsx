@@ -15,12 +15,14 @@ interface IscheduleProps {
 export const Schedule = (props: IscheduleProps) => {
 	const defaultValue = {
 		theDay: props.theDay,
+		addOnSwitch: [false, false, false],
+		isAddOnFixed: [false, false, false],
 	}
 
 	const [ theDay, setTheDay ] = useState(defaultValue.theDay);
 	useEffect(() => {
+		setTheDay(props.theDay);
 		setPreviousState(['logo', undefined]);
-		setTheDay(props.theDay)
 	}, [props.theDay]);
 
 	//	pending : waiting for approve
@@ -39,7 +41,11 @@ export const Schedule = (props: IscheduleProps) => {
 	//	사용자가 선택한 날짜에 따라 그날 스케쥴을 받아오고, 적절한 하위 컴포넌트로 상태를 업데이트 한다.
 	useEffect(() => {
 		const setters = [setSchedule1Status, setSchedule2Status, setSchedule3Status];
-		setters.forEach((ele: any) => ele(null));
+		setters.forEach(ele => ele(null));
+
+		setAddOnSwitch(defaultValue.addOnSwitch);
+		setIsAddOnFixed(defaultValue.isAddOnFixed);
+
 		const getProject = async () => {
 			const result = await api.get(`/project?theDay=${theDay}`);
 			result.data.forEach((ele: any) => setters[ele.session-1](ele.status));
@@ -80,17 +86,30 @@ export const Schedule = (props: IscheduleProps) => {
 				}else{
 					setPreviousState(['readProject', sessionNumber]);
 				}
+				const temp = [false, false, false];
+				temp[sessionNumber-1] = true;
+				setIsAddOnFixed(temp);
 			},
 			onMouseEnter: (sessionNumber: number, previousState: any) => {
 				if(previousState[0] === 'logo' || previousState[0] === 'readProject'){
 					props.setPageMode('readProject');
 					props.setSession(sessionNumber);
 				}
+				const temp = [false, false, false];
+				temp[sessionNumber-1] = true;
+				setAddOnSwitch(temp);
 			},
-			onMouseLeave: (previousState: any) => {
+			onMouseLeave: (sessionNumber: number, previousState: any) => {
+				//	create, update, delete 도중이었다면 그냥 사라져서는 안된다. 한번 물어봐야지.
 				if(previousState[0] === 'readProject' || previousState[0] === 'logo'){
 					props.setPageMode(previousState[0]);
 					props.setSession(previousState[1]);
+				}
+				//	mouseLeave이벤트가 발생하는 요소와 addOn이 fix된 세션넘버가 다를 때에만 동작하도록 한다.
+				if(isAddOnFixed.findIndex((ele) => ele === true) !== sessionNumber-1){
+					const temp = [false, false, false];
+					temp[isAddOnFixed.findIndex((ele) => ele === true)] = true;
+					setAddOnSwitch(temp);
 				}
 			},
 		},
@@ -105,17 +124,30 @@ export const Schedule = (props: IscheduleProps) => {
 				}else{
 					setPreviousState(['readProject', sessionNumber]);
 				}
+				const temp = [false, false, false];
+				temp[sessionNumber-1] = true;
+				setIsAddOnFixed(temp);
 			},
 			onMouseEnter: (sessionNumber: number, previousState: any) => {
 				if(previousState[0] === 'logo' || previousState[0] === 'readProject'){
 					props.setPageMode('readProject');
 					props.setSession(sessionNumber);
 				}
+				const temp = [false, false, false];
+				temp[sessionNumber-1] = true;
+				setAddOnSwitch(temp);
 			},
-			onMouseLeave: (previousState: any) => {
+			onMouseLeave: (sessionNumber: number, previousState: any) => {
+				//	create, update, delete 도중이었다면 그냥 사라져서는 안된다. 한번 물어봐야지.
 				if(previousState[0] === 'readProject' || previousState[0] === 'logo'){
 					props.setPageMode(previousState[0]);
 					props.setSession(previousState[1]);
+				}
+				//	mouseLeave이벤트가 발생하는 요소와 addOn이 fix된 세션넘버가 다를 때에만 동작하도록 한다.
+				if(isAddOnFixed.findIndex((ele) => ele === true) !== sessionNumber-1){
+					const temp = [false, false, false];
+					temp[isAddOnFixed.findIndex((ele) => ele === true)] = true;
+					setAddOnSwitch(temp);
 				}
 			},
 		},
@@ -130,63 +162,116 @@ export const Schedule = (props: IscheduleProps) => {
 				}else{
 					setPreviousState(['readProject', sessionNumber]);
 				}
+				const temp = [false, false, false];
+				temp[sessionNumber-1] = true;
+				setIsAddOnFixed(temp);
 			},
 			onMouseEnter: (sessionNumber: number, previousState: any) => {
 				if(previousState[0] === 'logo' || previousState[0] === 'readProject'){
 					props.setPageMode('readProject');
 					props.setSession(sessionNumber);
 				}
+				const temp = [false, false, false];
+				temp[sessionNumber-1] = true;
+				setAddOnSwitch(temp);
 			},
-			onMouseLeave: (previousState: any) => {
+			onMouseLeave: (sessionNumber: number, previousState: any) => {
+				//	create, update, delete 도중이었다면 그냥 사라져서는 안된다. 한번 물어봐야지.
 				if(previousState[0] === 'readProject' || previousState[0] === 'logo'){
 					props.setPageMode(previousState[0]);
 					props.setSession(previousState[1]);
+				}
+				//	mouseLeave이벤트가 발생하는 요소와 addOn이 fix된 세션넘버가 다를 때에만 동작하도록 한다.
+				if(isAddOnFixed.findIndex((ele) => ele === true) !== sessionNumber-1){
+					const temp = [false, false, false];
+					temp[isAddOnFixed.findIndex((ele) => ele === true)] = true;
+					setAddOnSwitch(temp);
 				}
 			},
 		},
 	};
 
 	const makeCreatingComponent = (sessionNumber: number) => {
-		return <button onClick={() => events.newProject.onClick(sessionNumber)
-	}>새로운 제안하기</button>; }
+		return <div
+			onClick={() => events.newProject.onClick(sessionNumber)}
+		>새로운 제안하기</div>;
+	}
 
 	const makePendingComponent = (sessionNumber: number, previousState: any) => {
-		return <div onClick={() => events.pending.onClick(sessionNumber, previousState)} onMouseEnter={() => events.pending.onMouseEnter(sessionNumber, previousState)} onMouseLeave={() => events.pending.onMouseLeave(previousState)
-	}>관리자 승인을 기다리는 중입니다.</div> }
+		return <div
+			onClick={() => events.pending.onClick(sessionNumber, previousState)}
+			onMouseEnter={() => events.pending.onMouseEnter(sessionNumber, previousState)}
+			onMouseLeave={() => events.pending.onMouseLeave(sessionNumber, previousState)}
+		>관리자 승인을 기다리는 중입니다.</div> 
+	}
 
 	const makeRecruitingComponent = (sessionNumber: number, previousState: any) => {
-		return <div onClick={() => events.recruiting.onClick(sessionNumber, previousState)} onMouseEnter={() => events.recruiting.onMouseEnter(sessionNumber, previousState)} onMouseLeave={events.recruiting.onMouseLeave
-	}>참석자 모집 중입니다.</div> }
+		return <div
+			onClick={() => events.recruiting.onClick(sessionNumber, previousState)}
+			onMouseEnter={() => events.recruiting.onMouseEnter(sessionNumber, previousState)}
+			onMouseLeave={() => events.recruiting.onMouseLeave(sessionNumber, previousState)}
+		>참석자 모집 중입니다.</div>
+	}
 
 	const makeConfirmedComponent = (sessionNumber: number, previousState: any) => {
-		return <div onClick={() => events.confirmed.onClick(sessionNumber, previousState)} onMouseEnter={() => events.confirmed.onMouseEnter(sessionNumber, previousState)} onMouseLeave={events.confirmed.onMouseLeave
-	}>확정된 일정입니다.</div> }
+		return <div
+			onClick={() => events.confirmed.onClick(sessionNumber, previousState)}
+			onMouseEnter={() => events.confirmed.onMouseEnter(sessionNumber, previousState)}
+			onMouseLeave={() => events.confirmed.onMouseLeave(sessionNumber, previousState)}
+		>확정된 일정입니다.</div>
+	}
+
+
+	//	addOn 관련 내용
+	type addOnSwitchType = boolean[];
+	const [ addOnSwitch, setAddOnSwitch ] = useState<addOnSwitchType>(defaultValue.addOnSwitch);
+	type isAddOnFixedType = boolean[];
+	const [ isAddOnFixed, setIsAddOnFixed ] = useState<isAddOnFixedType>(defaultValue.isAddOnFixed);
+	const [ addOn1, setAddOn1 ] = useState<any>(null);
+	const [ addOn2, setAddOn2 ] = useState<any>(null);
+	const [ addOn3, setAddOn3 ] = useState<any>(null);
+
+	const addOn = {
+		pending: <div><button>like</button></div>,
+		recruiting: <div><button>예약</button><button>예약 취소</button></div>,
+		confirmed: <div><button>예약 취소</button></div>,
+	}
 
 	//	선택 된 날짜의 3개 스케쥴(세션) 상태에 따라 걸맞는 컴포넌트를 생성 해 준다.
+	//	addOn도 마찬가지.
+	//	previousState도 넣어줘서 다른 컴포넌트 클릭 등 event 발생 시 조건으로 활용 해 준다. 예를 들어 previous가 어떤 form작성 중이라는 상태였다면 그 내용을 다 잃어도 좋은지 물어볼 수 있도록.
 	useEffect(() => {
 		const statuses = [schedule1Status, schedule2Status, schedule3Status];
 		const setters = [setSchedule1Component, setSchedule2Component, setSchedule3Component];
+		const addOnSetters = [setAddOn1, setAddOn2, setAddOn3];
 		setters.forEach((ele: any, idx: number) => ele(makeCreatingComponent(idx+1)));
 		statuses.forEach((ele: any, idx: number) => {
 			switch(ele){
 				case 'pending':
 					setters[idx](makePendingComponent(idx+1, previousState));
+					addOnSetters[idx](addOn.pending);
 					break;
 				case 'recruiting':
 					setters[idx](makeRecruitingComponent(idx+1, previousState));
+					addOnSetters[idx](addOn.recruiting);
 					break;
 				case 'confirmed':
 					setters[idx](makeConfirmedComponent(idx+1, previousState));
+					addOnSetters[idx](addOn.confirmed);
 					break;
 			}
 		})
 	}, [schedule1Status, schedule2Status, schedule3Status, previousState]);
 
+
 	return (
 		<div className="ScheduleBox">
-			<div>{schedule1Component}<p>13:00 ~ 15:00</p></div>
-			<div>{schedule2Component}<p>16:00 ~ 18:00</p></div>
-			<div>{schedule3Component}<p>19:00 ~ 21:00</p></div>
+			<span>13:00 ~ 15:00</span>
+			<div>{schedule1Component}{addOnSwitch[0] ? addOn1 : null}</div>
+			<span>16:00 ~ 18:00</span>
+			<div>{schedule2Component}{addOnSwitch[1] ? addOn2 : null}</div>
+			<span>19:00 ~ 21:00</span>
+			<div>{schedule3Component}{addOnSwitch[2] ? addOn3 : null}</div>
 		</div>
 	);
 }

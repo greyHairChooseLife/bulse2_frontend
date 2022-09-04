@@ -17,3 +17,12 @@ body {
 	top: 10%;
 	left: 40%;
 }
+
+.Login {
+	position: absolute;
+	width: 30vw;
+	height: 5vh;
+	border: solid 1px black;
+	top: 5vh;
+	right: 7vh;
+}

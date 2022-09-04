@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Login } from './component/Parts/Login';
 import { Calendar } from './component/Parts/Calendar';
 import { Schedule } from './component/Parts/Schedule';
 import { GetIdentity, CreateProject, ReadProject, UpdateProject, DeleteProject } from './component/Parts/Propose';
@@ -6,20 +7,18 @@ import './App.css';
 
 const today = new Date();
 
+type sessionType = 1 | 2 | 3 | undefined;
+type identityType = {
+	name: string,
+	mobileNumber: string
+}
+type pageModeType = 'logo' | 'readProject' | 'createProject' | 'updateProject' | 'deleteProject'
+
 function App() {
 
 	const [ theDay, setTheDay ] = useState<string>(`${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`);
-	type sessionType = 1 | 2 | 3 | undefined;
 	const [ session, setSession ] = useState<sessionType>(undefined);
-
-	type identityType = {
-		name: string,
-		mobileNumber: string
-	}
-
-	type pageModeType = 'logo' | 'readProject' | 'createProject' | 'updateProject' | 'deleteProject'
 	const [ pageMode, setPageMode ] = useState<pageModeType>('logo');
-
 	const [ identity, setIdentity ] = useState<identityType | undefined>(undefined);
 	const [ isIdentified, setIsIdentified ] = useState<boolean>(false);
 
@@ -62,6 +61,9 @@ function App() {
 			</div>
 			<div>
 				{page}
+			</div>
+			<div className="Login">
+				<Login identity={identity} setIdentity={setIdentity} />
 			</div>
 		</div>
 	);

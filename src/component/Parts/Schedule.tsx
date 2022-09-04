@@ -14,22 +14,29 @@ interface IscheduleProps {
 
 export const Schedule = (props: IscheduleProps) => {
 	const defaultValue = {
-		theDay: props.theDay,
 		addOnSwitch: [false, false, false],
 		isAddOnFixed: [false, false, false],
 	}
 
-	const [ theDay, setTheDay ] = useState(defaultValue.theDay);
+	//	날짜가 바뀌면 현재 depth:0의 state들을 초기화 한다. scheduleStatus는 당연히 그 날짜의 session 데이터를 가져와서 update해준다.
 	useEffect(() => {
-		setTheDay(props.theDay);
 		setPreviousState(['logo', undefined]);
+		setAddOnSwitch(defaultValue.addOnSwitch);
+		setIsAddOnFixed(defaultValue.isAddOnFixed);
+
+		const setters = [setSchedule1Status, setSchedule2Status, setSchedule3Status];
+		setters.forEach(ele => ele(null));
+		const getProject = async () => {
+			const result = await api.get(`/project?theDay=${props.theDay}`);
+			result.data.forEach((ele: any) => setters[ele.session-1](ele.status));
+		}
+		getProject();
 	}, [props.theDay]);
 
-	//	pending : waiting for approve
+	//	pending : waiting for approve by administrator
 	//	recruiting : recruiting for reservation
 	//	confirmed : schedule confirmed
 	type scheduleStatusType = 'pending' | 'recruiting' | 'confirmed';
-	const scheduleStatus = ['pending', 'recruiting', 'confirmed'];
 	const [ schedule1Status, setSchedule1Status ] = useState<scheduleStatusType | null>(null);
 	const [ schedule2Status, setSchedule2Status ] = useState<scheduleStatusType | null>(null);
 	const [ schedule3Status, setSchedule3Status ] = useState<scheduleStatusType | null>(null);
@@ -37,21 +44,6 @@ export const Schedule = (props: IscheduleProps) => {
 	const [ schedule1Component, setSchedule1Component ] = useState<null | JSX.Element>(null);
 	const [ schedule2Component, setSchedule2Component ] = useState<null | JSX.Element>(null);
 	const [ schedule3Component, setSchedule3Component ] = useState<null | JSX.Element>(null);
-
-	//	사용자가 선택한 날짜에 따라 그날 스케쥴을 받아오고, 적절한 하위 컴포넌트로 상태를 업데이트 한다.
-	useEffect(() => {
-		const setters = [setSchedule1Status, setSchedule2Status, setSchedule3Status];
-		setters.forEach(ele => ele(null));
-
-		setAddOnSwitch(defaultValue.addOnSwitch);
-		setIsAddOnFixed(defaultValue.isAddOnFixed);
-
-		const getProject = async () => {
-			const result = await api.get(`/project?theDay=${theDay}`);
-			result.data.forEach((ele: any) => setters[ele.session-1](ele.status));
-		}
-		getProject();
-	}, [theDay])
 
 	type pageModeType = 'logo' | 'readProject' | 'createProject' | 'updateProject' | 'deleteProject'
 	type previousStateType = [pageModeType, number | undefined];

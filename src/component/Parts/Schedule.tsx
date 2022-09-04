@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import './_.css';
 import axios from 'axios';
+import { useCookies } from 'react-cookie';
 
 const api = axios.create({
 	baseURL: `http://${process.env.REACT_APP_API_SERVER_HOST}:${process.env.REACT_APP_API_SERVER_PORT}`,
-})
+});
 
 interface IscheduleProps {
 	theDay: string
 	setSession: any
 	setPageMode: any
 }
-
 export const Schedule = (props: IscheduleProps) => {
+
+	const [ cookies, setCookie, removeCookie ] = useCookies(['checkOverlapLike']);
 	const defaultValue = {
 		addOnSwitch: [false, false, false],
 		isAddOnFixed: [false, false, false],
@@ -223,15 +225,49 @@ export const Schedule = (props: IscheduleProps) => {
 	const [ addOn2, setAddOn2 ] = useState<any>(null);
 	const [ addOn3, setAddOn3 ] = useState<any>(null);
 
+	const [ likedList, setLikedList ] = useState<[string, number][]>([]);
+
+	//	일단 쿠키 읽어와서 이미 좋아요 누른 것 기억 해 둔다.
+	useEffect(() => {
+		if(cookies.checkOverlapLike !== undefined){
+			setLikedList([...cookies.checkOverlapLike.items]);
+		}
+	}, [])
+
+	const addOnEvent = {
+		pending: async (sessionNumber: number) => {
+			//	likedList상태 값을 훑어서 선택한 theDay와 session이 존재한다면 event는 일어나지 않도록 한다.
+			let notLikedYet = true;
+			likedList.forEach(ele => {if(ele[0] === props.theDay && ele[1] === sessionNumber) notLikedYet = false;});
+			if(notLikedYet){
+				const result = await api.put('/project/likeCount', {theDay: props.theDay, session: sessionNumber});
+				const accumulatedLikeRecord = {
+					ip: result.data.affected.ip,
+					//	기존 쿠키 업데이트
+					items: cookies.checkOverlapLike !== undefined ? [...cookies?.checkOverlapLike.items, result.data.affected.item]
+					: [result.data.affected.item]
+				}
+
+				setCookie('checkOverlapLike', JSON.stringify(accumulatedLikeRecord), {path: '/', maxAge: 60*60});	//	1시간 동안 유효
+				setLikedList([...likedList, [props.theDay, sessionNumber]]);
+			}
+		},
+		recruiting: () => {},
+		confirmed: () => {},
+	}
+
 	const addOn = {
-		pending: <div><button>like</button></div>,
-		recruiting: <div><button>예약</button><button>예약 취소</button></div>,
-		confirmed: <div><button>예약 취소</button></div>,
+		pending: (sessionNumber: number) => <div><button onClick={() => addOnEvent.pending(sessionNumber)}>like</button></div>,
+		recruiting: () => <div><button>예약</button><button>예약 취소</button></div>,
+		confirmed: () => <div><button>예약 취소</button></div>,
 	}
 
 	//	선택 된 날짜의 3개 스케쥴(세션) 상태에 따라 걸맞는 컴포넌트를 생성 해 준다.
 	//	addOn도 마찬가지.
 	//	previousState도 넣어줘서 다른 컴포넌트 클릭 등 event 발생 시 조건으로 활용 해 준다. 예를 들어 previous가 어떤 form작성 중이라는 상태였다면 그 내용을 다 잃어도 좋은지 물어볼 수 있도록.
+	//
+	//	중요!!! 
+	//	의존성 배열에 likedList 상태값 또한 들어가 있다. 왜냐? 이 useEffect훅의 경우 addOn에서 사용할 콜백함수를 정의한다. 근데 그 콜백함수는 likedList상태값을 이용하고 있다. 그렇다면 likedList가 업데이트 될 때마다 useEffect 또한 다시 실행되도록 하는것이 인지 상정이다. 그렇지 않다면 과거의 likedList 상태값을 가진채로 addOn의 콜백함수가 실행 될 것이다.
 	useEffect(() => {
 		const statuses = [schedule1Status, schedule2Status, schedule3Status];
 		const setters = [setSchedule1Component, setSchedule2Component, setSchedule3Component];
@@ -241,20 +277,19 @@ export const Schedule = (props: IscheduleProps) => {
 			switch(ele){
 				case 'pending':
 					setters[idx](makePendingComponent(idx+1, previousState));
-					addOnSetters[idx](addOn.pending);
+					addOnSetters[idx](addOn.pending(idx+1));
 					break;
 				case 'recruiting':
 					setters[idx](makeRecruitingComponent(idx+1, previousState));
-					addOnSetters[idx](addOn.recruiting);
+					addOnSetters[idx](addOn.recruiting());
 					break;
 				case 'confirmed':
 					setters[idx](makeConfirmedComponent(idx+1, previousState));
-					addOnSetters[idx](addOn.confirmed);
+					addOnSetters[idx](addOn.confirmed());
 					break;
 			}
 		})
-	}, [schedule1Status, schedule2Status, schedule3Status, previousState]);
-
+	}, [schedule1Status, schedule2Status, schedule3Status, previousState, likedList]);
 
 	return (
 		<div className="ScheduleBox">

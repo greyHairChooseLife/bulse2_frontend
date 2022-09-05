@@ -257,10 +257,15 @@ export const Schedule = (props: IscheduleProps) => {
 			}
 		},
 		recruiting: async (sessionNumber: number) => {
+			//	모바일에서 접속한 것인지 체크한다. DOM의 형님격인 Browser Object Model에서 값을 가져오는 것. 모바일이 아니라면 기본값으로 laptop을 주자..
+			let device = 'laptop';
+			const mobileExample = new Array('iPhone','iPad','Android','BlackBerry','Windows Phone', 'Windows CE','LG','MOT','SAMSUNG','SonyEricsson','Nokia');
+			mobileExample.find((ele: string) => {if(navigator.userAgent.match(ele) !== null) device = 'mobile'});
+
 			if(props.identity === undefined){
 				alert('로그인부터 하슈')
 			}else{
-				const result = await api.post('/reservation', {theDay: props.theDay, sessionNumber: sessionNumber, name: props.identity.name, mobileNumber: props.identity.mobileNumber, device: 'wtf need to study'});
+				const result = await api.post('/reservation', {theDay: props.theDay, sessionNumber: sessionNumber, name: props.identity.name, mobileNumber: props.identity.mobileNumber, device: device});
 				result.status !== 200 && console.log('booking failed. somehting wrong, xD');
 			}
 		},

@@ -7,10 +7,15 @@ const api = axios.create({
 	baseURL: `http://${process.env.REACT_APP_API_SERVER_HOST}:${process.env.REACT_APP_API_SERVER_PORT}`,
 });
 
+type identityType = {
+	name: string,
+	mobileNumber: string
+}
 interface IscheduleProps {
 	theDay: string
 	setSession: any
 	setPageMode: any
+	identity: identityType | undefined
 }
 export const Schedule = (props: IscheduleProps) => {
 	const [ cookies, setCookie, removeCookie ] = useCookies(['checkOverlapLike']);
@@ -251,13 +256,20 @@ export const Schedule = (props: IscheduleProps) => {
 				setLikedList([...likedList, [props.theDay, sessionNumber]]);
 			}
 		},
-		recruiting: () => {},
+		recruiting: async (sessionNumber: number) => {
+			if(props.identity === undefined){
+				alert('로그인부터 하슈')
+			}else{
+				const result = await api.post('/reservation', {theDay: props.theDay, sessionNumber: sessionNumber, name: props.identity.name, mobileNumber: props.identity.mobileNumber, device: 'wtf need to study'});
+				result.status !== 200 && console.log('booking failed. somehting wrong, xD');
+			}
+		},
 		confirmed: () => {},
 	}
 
 	const addOn = {
 		pending: (sessionNumber: number) => <div><button onClick={() => addOnEvent.pending(sessionNumber)}>like</button></div>,
-		recruiting: () => <div><button>예약</button><button>예약 취소</button></div>,
+		recruiting: (sessionNumber: number) => <div><button onClick={() => addOnEvent.recruiting(sessionNumber)}>예약</button><button>예약 취소</button></div>,
 		confirmed: () => <div><button>예약 취소</button></div>,
 	}
 
@@ -280,7 +292,7 @@ export const Schedule = (props: IscheduleProps) => {
 					break;
 				case 'recruiting':
 					setters[idx](makeRecruitingComponent(idx+1, previousState));
-					addOnSetters[idx](addOn.recruiting());
+					addOnSetters[idx](addOn.recruiting(idx+1));
 					break;
 				case 'confirmed':
 					setters[idx](makeConfirmedComponent(idx+1, previousState));
@@ -288,7 +300,7 @@ export const Schedule = (props: IscheduleProps) => {
 					break;
 			}
 		})
-	}, [schedule1Status, schedule2Status, schedule3Status, previousState, likedList]);
+	}, [schedule1Status, schedule2Status, schedule3Status, previousState, likedList, props.identity]);
 
 	return (
 		<div className="ScheduleBox">

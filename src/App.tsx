@@ -57,7 +57,7 @@ function App() {
 				<Calendar setTheDay={setTheDay} setSession={setSession} setPageMode={setPageMode} pageMode={pageMode} />
 			</div>
 			<div>
-				<Schedule theDay={theDay} setSession={setSession} setPageMode={setPageMode} />
+				<Schedule theDay={theDay} setSession={setSession} setPageMode={setPageMode} identity={identity} />
 			</div>
 			<div>
 				{page}

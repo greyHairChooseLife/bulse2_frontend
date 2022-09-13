@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import './_.css';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
@@ -7,6 +7,7 @@ const api = axios.create({
 	baseURL: `http://${process.env.REACT_APP_API_SERVER_HOST}:${process.env.REACT_APP_API_SERVER_PORT}`,
 });
 
+type reservationDataType = {RId: number, Rdevice: string, Rpayment: number, PId: number, Psubject: string, Pname: string, Pdate: Date, Psession: number}[];
 type identityType = {
 	name: string,
 	mobileNumber: string
@@ -17,6 +18,7 @@ interface IscheduleProps {
 	setPageMode: any
 	identity: identityType | undefined
 	reservationRecord: any
+	setReservationRecord: Dispatch<SetStateAction<reservationDataType>>
 }
 export const Schedule = (props: IscheduleProps) => {
 	const [ cookies, setCookie, removeCookie ] = useCookies(['checkOverlapLike']);
@@ -239,8 +241,31 @@ export const Schedule = (props: IscheduleProps) => {
 		}
 	}, [])
 
+	//	예약 하는 순간 reservationRecord를 업데이트 해야 연속 업데이트를 방지할 수 있다.
+	//	기존에는 reservationRecord는 로그인 하는 순간 딱 한번 업데이트 되었기 때문에.
+	const [ reserving, setReserving ] = useState<boolean>(false);
+	useEffect(() => {
+		const getReservationRecord = async () => {
+			const result = await api.get('/reservation', {params: {theDay: props.theDay, name: props.identity?.name, mobileNumber: props.identity?.mobileNumber}});
+
+			props.setReservationRecord(
+				//	타임존 반영해서 형식 변경
+				result.data.map((ele: any) => {
+					const origin = new Date(ele.Pdate);
+					ele.Pdate = origin.getMonth()+1 <= 9 ? `${origin.getFullYear()}-${'0'+(origin.getMonth()+1)}-${origin.getDate()}`
+					: `${origin.getFullYear()}-${origin.getMonth()+1}-${origin.getDate()}`;
+					return ele;
+				})
+			)
+		}
+		if(reserving){
+			getReservationRecord();
+			setReserving(false);
+		}
+	}, [reserving])
+
 	const addOnEvent = {
-		pending: async (sessionNumber: number) => {
+		likeOnPending: async (sessionNumber: number) => {
 			//	likedList상태 값을 훑어서 선택한 theDay와 session이 존재한다면 event는 일어나지 않도록 한다.
 			let notLikedYet = true;
 			likedList.forEach(ele => {if(ele[0] === props.theDay && ele[1] === sessionNumber) notLikedYet = false;});
@@ -257,7 +282,7 @@ export const Schedule = (props: IscheduleProps) => {
 				setLikedList([...likedList, [props.theDay, sessionNumber]]);
 			}
 		},
-		recruiting: async (sessionNumber: number) => {
+		reserveOnRecruiting: async (sessionNumber: number) => {
 			//	모바일에서 접속한 것인지 체크한다. DOM의 형님격인 Browser Object Model에서 값을 가져오는 것. 모바일이 아니라면 기본값으로 laptop을 주자..
 			let device = 'laptop';
 			const mobileExample = new Array('iPhone','iPad','Android','BlackBerry','Windows Phone', 'Windows CE','LG','MOT','SAMSUNG','SonyEricsson','Nokia');
@@ -268,20 +293,27 @@ export const Schedule = (props: IscheduleProps) => {
 			}else{
 				//	예약하려는 프로젝트의 theDay와 session으로 찾아본다. 있다면 이미 예약 한 것.
 				const isDoneAlready = props.reservationRecord.find((ele: any) => ele.Pdate.substr(0, 10) === props.theDay && ele.Psession === sessionNumber);
-				if(isDoneAlready) alert('이미 예약 신청하셨습니다.');
+				if(isDoneAlready !== undefined) alert('이미 예약 신청하셨습니다.');
 				else{
+					setReserving(true);	//	reserving state는 예약 할 때마다 다시 reservationRecord를 업데이트 하기위한 트리거.
 					const result = await api.post('/reservation', {theDay: props.theDay, sessionNumber: sessionNumber, name: props.identity.name, mobileNumber: props.identity.mobileNumber, device: device});
 					result.status !== 200 && console.log('booking failed. somehting wrong, xD');
 				}
 			}
 		},
-		confirmed: () => {},
+		cancelOnRecruiting: (sessionNumber: number) => {
+			console.log(sessionNumber);
+		},
+
+		cancelOnConfirmed: (sessionNumber: number) => {
+			console.log(sessionNumber);
+		},
 	}
 
 	const addOn = {
-		pending: (sessionNumber: number) => <div><button onClick={() => addOnEvent.pending(sessionNumber)}>like</button></div>,
-		recruiting: (sessionNumber: number) => <div><button onClick={() => addOnEvent.recruiting(sessionNumber)}>예약</button><button>예약 취소</button></div>,
-		confirmed: () => <div><button>예약 취소</button></div>,
+		pending: (sessionNumber: number) => <div><button onClick={() => addOnEvent.likeOnPending(sessionNumber)}>like</button></div>,
+		recruiting: (sessionNumber: number) => <div><button onClick={() => addOnEvent.reserveOnRecruiting(sessionNumber)}>예약</button><button onClick={() => addOnEvent.cancelOnRecruiting(sessionNumber)}>예약 취소</button></div>,
+		confirmed: (sessionNumber: number) => <div><button onClick={() => addOnEvent.cancelOnConfirmed(sessionNumber)}>예약 취소</button></div>,
 	}
 
 	//	선택 된 날짜의 3개 스케쥴(세션) 상태에 따라 걸맞는 컴포넌트를 생성 해 준다.
@@ -307,11 +339,11 @@ export const Schedule = (props: IscheduleProps) => {
 					break;
 				case 'confirmed':
 					setters[idx](makeConfirmedComponent(idx+1, previousState));
-					addOnSetters[idx](addOn.confirmed());
+					addOnSetters[idx](addOn.confirmed(idx+1));
 					break;
 			}
 		})
-	}, [schedule1Status, schedule2Status, schedule3Status, previousState, likedList, props.identity]);
+	}, [schedule1Status, schedule2Status, schedule3Status, previousState, likedList, props.identity, props.reservationRecord]);
 
 	return (
 		<div className="ScheduleBox">

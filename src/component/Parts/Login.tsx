@@ -39,7 +39,6 @@ export const Login = (props: Ilogin) => {
 						return ele;
 					})
 				)
-				//props.setReservationRecord(result.data);
 			}
 			getReservationRecord();
 		}

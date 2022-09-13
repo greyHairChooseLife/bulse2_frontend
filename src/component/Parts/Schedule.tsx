@@ -295,18 +295,41 @@ export const Schedule = (props: IscheduleProps) => {
 				const isDoneAlready = props.reservationRecord.find((ele: any) => ele.Pdate.substr(0, 10) === props.theDay && ele.Psession === sessionNumber);
 				if(isDoneAlready !== undefined) alert('이미 예약 신청하셨습니다.');
 				else{
-					setReserving(true);	//	reserving state는 예약 할 때마다 다시 reservationRecord를 업데이트 하기위한 트리거.
+					setReserving(true);	//	reserving state는 예약 내용 변경 시 마다 다시 reservationRecord를 업데이트 하기위한 트리거.
 					const result = await api.post('/reservation', {theDay: props.theDay, sessionNumber: sessionNumber, name: props.identity.name, mobileNumber: props.identity.mobileNumber, device: device});
 					result.status !== 200 && console.log('booking failed. somehting wrong, xD');
 				}
 			}
 		},
 		cancelOnRecruiting: (sessionNumber: number) => {
-			console.log(sessionNumber);
+			if(props.identity === undefined){
+				alert('로그인부터 하슈')
+			}else{
+				//	예약취소하려는 프로젝트의 theDay와 session으로 찾아본다.
+				const found = props.reservationRecord.find((ele: any) => ele.Pdate.substr(0, 10) === props.theDay && ele.Psession === sessionNumber);
+				if(found === undefined) alert('예약한 프로젝트가 아닙니다.');
+				else{
+					if(window.confirm('정말로 예약을 취소하시겠습니까?')){
+						setReserving(true);	//	reserving state는 예약 내용 변경 시 마다 다시 reservationRecord를 업데이트 하기위한 트리거.
+						api.delete('/reservation', {data: {reservationId: found.RId}});
+					}
+				}
+			}
 		},
-
 		cancelOnConfirmed: (sessionNumber: number) => {
-			console.log(sessionNumber);
+			if(props.identity === undefined){
+				alert('로그인부터 하슈')
+			}else{
+				//	예약취소하려는 프로젝트의 theDay와 session으로 찾아본다.
+				const found = props.reservationRecord.find((ele: any) => ele.Pdate.substr(0, 10) === props.theDay && ele.Psession === sessionNumber);
+				if(found === undefined) alert('예약한 프로젝트가 아닙니다.');
+				else{
+					if(window.confirm('보증금이 반환되지 않습니다. 정말로 예약을 취소하시겠습니까?')){
+						setReserving(true);	//	reserving state는 예약 내용 변경 시 마다 다시 reservationRecord를 업데이트 하기위한 트리거.
+						api.delete('/reservation', {data: {reservationId: found.RId}});
+					}
+				}
+			}
 		},
 	}
 

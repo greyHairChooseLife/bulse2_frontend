@@ -31,14 +31,16 @@ export const Calendar = (props: IcalendarPrpps) => {
 
 	const handleOnClick = (i: number) => {
 		if(i-skippingCount+2 >= 1){
+			const newDate = today.getMonth()+1 <= 9 ? `${today.getFullYear()}-${'0'+(today.getMonth()+1)}-${i-skippingCount+2}`
+				: `${today.getFullYear()}-${today.getMonth()+1}-${i-skippingCount+2}`;
 			if(props.pageMode !== 'createProject'){
-				props.setTheDay(`${today.getFullYear()}-${today.getMonth()+1}-${i-skippingCount+2}`)
+				props.setTheDay(newDate)
 				//	날짜가 바뀌면 pageMode와 session정보를 기본값('logo', undefined)으로 초기화 해 준다.
 				props.setSession(undefined);
 				props.setPageMode('logo');
 			}else{
 				if(window.confirm('작성 중이던 내용이 사라집니다.')){
-					props.setTheDay(`${today.getFullYear()}-${today.getMonth()+1}-${i-skippingCount+2}`)
+					props.setTheDay(newDate)
 					props.setSession(undefined);
 					props.setPageMode('logo');
 				}

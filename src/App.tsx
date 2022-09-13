@@ -13,14 +13,18 @@ type identityType = {
 	mobileNumber: string
 }
 type pageModeType = 'logo' | 'readProject' | 'createProject' | 'updateProject' | 'deleteProject'
+type reservationDataType = {RId: number, Rdevice: string, Rpayment: number, PId: number, Psubject: string, Pname: string, Pdate: Date, Psession: number}[];
 
 function App() {
 
-	const [ theDay, setTheDay ] = useState<string>(`${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`);
+	const initDate = today.getMonth()+1 <= 9 ? `${today.getFullYear()}-${'0'+(today.getMonth()+1)}-${today.getDate()}`
+		: `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
+	const [ theDay, setTheDay ] = useState<string>(initDate);
 	const [ session, setSession ] = useState<sessionType>(undefined);
-	const [ pageMode, setPageMode ] = useState<pageModeType>('logo');
+	const [ pageMode, setPageMode ] = useState<pageModeType>('logo');	//	화면 우측에 메인페이지를 뜻한다. (달력, 스케쥴, 로그인 등은 항상 존재하는 컨트롤러들)
 	const [ identity, setIdentity ] = useState<identityType | undefined>(undefined);
 	const [ isIdentified, setIsIdentified ] = useState<boolean>(false);
+	const [ reservationRecord, setReservationRecord ] = useState<reservationDataType>([]);
 
 	useEffect(() => {
 		if(identity !== undefined) setIsIdentified(true);
@@ -57,13 +61,13 @@ function App() {
 				<Calendar setTheDay={setTheDay} setSession={setSession} setPageMode={setPageMode} pageMode={pageMode} />
 			</div>
 			<div>
-				<Schedule theDay={theDay} setSession={setSession} setPageMode={setPageMode} identity={identity} />
+				<Schedule theDay={theDay} setSession={setSession} setPageMode={setPageMode} identity={identity} reservationRecord={reservationRecord} />
 			</div>
 			<div>
 				{page}
 			</div>
 			<div className="Login">
-				<Login identity={identity} setIdentity={setIdentity} />
+				<Login identity={identity} setIdentity={setIdentity} setReservationRecord={setReservationRecord} theDay={theDay} />
 			</div>
 		</div>
 	);

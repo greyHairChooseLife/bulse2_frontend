@@ -16,6 +16,7 @@ interface IscheduleProps {
 	setSession: any
 	setPageMode: any
 	identity: identityType | undefined
+	reservationRecord: any
 }
 export const Schedule = (props: IscheduleProps) => {
 	const [ cookies, setCookie, removeCookie ] = useCookies(['checkOverlapLike']);
@@ -265,8 +266,13 @@ export const Schedule = (props: IscheduleProps) => {
 			if(props.identity === undefined){
 				alert('로그인부터 하슈')
 			}else{
-				const result = await api.post('/reservation', {theDay: props.theDay, sessionNumber: sessionNumber, name: props.identity.name, mobileNumber: props.identity.mobileNumber, device: device});
-				result.status !== 200 && console.log('booking failed. somehting wrong, xD');
+				//	예약하려는 프로젝트의 theDay와 session으로 찾아본다. 있다면 이미 예약 한 것.
+				const isDoneAlready = props.reservationRecord.find((ele: any) => ele.Pdate.substr(0, 10) === props.theDay && ele.Psession === sessionNumber);
+				if(isDoneAlready) alert('이미 예약 신청하셨습니다.');
+				else{
+					const result = await api.post('/reservation', {theDay: props.theDay, sessionNumber: sessionNumber, name: props.identity.name, mobileNumber: props.identity.mobileNumber, device: device});
+					result.status !== 200 && console.log('booking failed. somehting wrong, xD');
+				}
 			}
 		},
 		confirmed: () => {},

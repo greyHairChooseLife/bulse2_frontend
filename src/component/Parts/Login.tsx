@@ -1,20 +1,49 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import './_.css';
 import { useCookies } from 'react-cookie';
+import axios from 'axios';
+
+const api = axios.create({
+	baseURL: `http://${process.env.REACT_APP_API_SERVER_HOST}:${process.env.REACT_APP_API_SERVER_PORT}`,
+});
 
 type identityType = {
 	name: string,
 	mobileNumber: string
 }
+type reservationDataType = {RId: number, Rdevice: string, Rpayment: number, PId: number, Psubject: string, Pname: string, Pdate: Date, Psession: number}[];
 interface Ilogin {
 	identity: identityType | undefined
 	setIdentity: any
+	setReservationRecord: Dispatch<SetStateAction<reservationDataType>>
+	theDay: any
 }
 export const Login = (props: Ilogin) => {
 	const [ cookies, setCookie, removeCookie ] = useCookies(['loginInfoByBulse']);
 
 	//	로그인 여부 확인용 쿠키 체크해서 만약 있다면 로그인으로 여겨 준다.
 	useEffect(() => { cookies.loginInfoByBulse !== undefined && props.setIdentity(cookies.loginInfoByBulse) }, [])
+
+	//	로그인 한(하는) 경우, 그 달의 예약 정보를 업데이트 해 준다.
+	useEffect(() => {
+		if(props.identity !== undefined){
+			const getReservationRecord = async () => {
+				const result = await api.post(`/reservation/identity?theDay=${props.theDay}`, {name: props.identity?.name, mobileNumber: props.identity?.mobileNumber});
+
+				props.setReservationRecord(
+					//	타임존 반영해서 형식 변경
+					result.data.map((ele: any) => {
+						const origin = new Date(ele.Pdate);
+						ele.Pdate = origin.getMonth()+1 <= 9 ? `${origin.getFullYear()}-${'0'+(origin.getMonth()+1)}-${origin.getDate()}`
+						: `${origin.getFullYear()}-${origin.getMonth()+1}-${origin.getDate()}`;
+						return ele;
+					})
+				)
+				//props.setReservationRecord(result.data);
+			}
+			getReservationRecord();
+		}
+	}, [props.identity])
 
 	const [ name, setName ] = useState<string>('');
 	const [ mobileNumber, setMobileNumber ] = useState<string>('');

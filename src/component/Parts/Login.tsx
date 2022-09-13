@@ -28,7 +28,7 @@ export const Login = (props: Ilogin) => {
 	useEffect(() => {
 		if(props.identity !== undefined){
 			const getReservationRecord = async () => {
-				const result = await api.post(`/reservation/identity?theDay=${props.theDay}`, {name: props.identity?.name, mobileNumber: props.identity?.mobileNumber});
+				const result = await api.get('/reservation', {params: {theDay: props.theDay, name: props.identity?.name, mobileNumber: props.identity?.mobileNumber}});
 
 				props.setReservationRecord(
 					//	타임존 반영해서 형식 변경

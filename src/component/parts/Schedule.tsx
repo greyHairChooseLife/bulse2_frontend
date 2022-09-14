@@ -27,6 +27,10 @@ export const Schedule = (props: IscheduleProps) => {
 		isAddOnFixed: [false, false, false],
 	}
 
+	type pageModeType = 'logo' | 'readProject' | 'createProject' | 'updateProject' | 'deleteProject'
+	type previousStateType = [pageModeType, number | undefined];
+	const [ previousState, setPreviousState ] = useState<previousStateType>(['logo', undefined]);
+
 	//	날짜가 바뀌면 현재 depth:0의 state들을 초기화 한다. scheduleStatus는 당연히 그 날짜의 session 데이터를 가져와서 update해준다.
 	useEffect(() => {
 		setPreviousState(['logo', undefined]);
@@ -36,12 +40,13 @@ export const Schedule = (props: IscheduleProps) => {
 		const setters = [setSchedule1Status, setSchedule2Status, setSchedule3Status];
 		setters.forEach(ele => ele(null));
 		const getProject = async () => {
-			const result = await api.get(`/project?theDay=${props.theDay}`);
+			const result = await api.get(`/project/date`, {params: {theDay: props.theDay}});
 			result.data.forEach((ele: any) => setters[ele.session-1](ele.status));
 		}
 		getProject();
 	}, [props.theDay]);
 
+	//	schedule Component 관련 내용
 	//	pending : waiting for approve by administrator
 	//	recruiting : recruiting for reservation
 	//	confirmed : schedule confirmed
@@ -53,10 +58,6 @@ export const Schedule = (props: IscheduleProps) => {
 	const [ schedule1Component, setSchedule1Component ] = useState<null | JSX.Element>(null);
 	const [ schedule2Component, setSchedule2Component ] = useState<null | JSX.Element>(null);
 	const [ schedule3Component, setSchedule3Component ] = useState<null | JSX.Element>(null);
-
-	type pageModeType = 'logo' | 'readProject' | 'createProject' | 'updateProject' | 'deleteProject'
-	type previousStateType = [pageModeType, number | undefined];
-	const [ previousState, setPreviousState ] = useState<previousStateType>(['logo', undefined]);
 
 	let events = {
 		newProject: {
@@ -195,7 +196,7 @@ export const Schedule = (props: IscheduleProps) => {
 	const makeCreatingComponent = (sessionNumber: number) => {
 		return <div
 			onClick={() => events.newProject.onClick(sessionNumber)}
-		>새로운 제안하기</div>;
+		><p>새로운 제안하기</p></div>;
 	}
 
 	const makePendingComponent = (sessionNumber: number, previousState: any) => {
@@ -203,7 +204,7 @@ export const Schedule = (props: IscheduleProps) => {
 			onClick={() => events.pending.onClick(sessionNumber, previousState)}
 			onMouseEnter={() => events.pending.onMouseEnter(sessionNumber, previousState)}
 			onMouseLeave={() => events.pending.onMouseLeave(sessionNumber, previousState)}
-		>관리자 승인을 기다리는 중입니다.</div> 
+		><p>관리자 승인을 기다리는 중입니다.</p></div> 
 	}
 
 	const makeRecruitingComponent = (sessionNumber: number, previousState: any) => {
@@ -211,7 +212,7 @@ export const Schedule = (props: IscheduleProps) => {
 			onClick={() => events.recruiting.onClick(sessionNumber, previousState)}
 			onMouseEnter={() => events.recruiting.onMouseEnter(sessionNumber, previousState)}
 			onMouseLeave={() => events.recruiting.onMouseLeave(sessionNumber, previousState)}
-		>참석자 모집 중입니다.</div>
+		><p>참석자 모집 중입니다.</p></div>
 	}
 
 	const makeConfirmedComponent = (sessionNumber: number, previousState: any) => {
@@ -219,7 +220,7 @@ export const Schedule = (props: IscheduleProps) => {
 			onClick={() => events.confirmed.onClick(sessionNumber, previousState)}
 			onMouseEnter={() => events.confirmed.onMouseEnter(sessionNumber, previousState)}
 			onMouseLeave={() => events.confirmed.onMouseLeave(sessionNumber, previousState)}
-		>확정된 일정입니다.</div>
+		><p>확정된 일정입니다.</p></div>
 	}
 
 

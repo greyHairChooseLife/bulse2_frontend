@@ -127,7 +127,7 @@ export const ReadProject = (props: IreadProject) => {
 
 	useEffect(() => {
 		const getProjectAndMatchSession = async () => {
-			const result = await api.get(`/project?theDay=${props.theDay}`);
+			const result = await api.get(`/project/date`, {params: {theDay: props.theDay}});
 			const sessionMatched = result.data.find((ele: any) => ele.session === props.session);
 
 			//	이름 가리기 : 세글자 이하인 경우

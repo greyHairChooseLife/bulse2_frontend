@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Login } from './component/Parts/Login';
-import { Calendar } from './component/Parts/Calendar';
-import { Schedule } from './component/Parts/Schedule';
-import { GetIdentity, CreateProject, ReadProject, UpdateProject, DeleteProject } from './component/Parts/Propose';
+import { Login } from './component/parts/Login';
+import { Calendar } from './component/parts/Calendar';
+import { Schedule } from './component/parts/Schedule';
+import { GetIdentity, CreateProject, ReadProject, UpdateProject, DeleteProject } from './component/parts/Propose';
+import { ProjectBoard, ProjectController, ProjectClipboard } from './component/admin/Admin';
 import './App.css';
 
 const today = new Date();
@@ -54,6 +55,14 @@ function App() {
 			page = <DeleteProject />
 			break;
 	}
+
+	return (
+		<div className="Admin">
+			<ProjectBoard theDay={theDay} />
+			<ProjectController />
+			<ProjectClipboard />
+		</div>
+	)
 
 	return (
 		<div className="App">

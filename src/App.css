@@ -11,6 +11,8 @@ body {
 	position: absolute;
 	top: calc(5% + 30vh + 10%);
 	left: 5%;
+	width: 25vw;
+	height: 45vh;
 }
 .App>div:nth-child(3) {
 	position: absolute;
@@ -25,4 +27,23 @@ body {
 	border: solid 1px black;
 	top: 5vh;
 	right: 7vh;
+}
+
+.Admin {
+	box-sizing: border-box;
+	width: 100vw;
+	height: 100vh;
+	padding: 5vh 5vw 5vh 5vw;
+	display: grid;
+	grid-template-columns: repeat(5, 1fr);
+	grid-template-rows: repeat(4, 1fr);
+	grid-gap: 50px;
+}
+
+
+/**
+ * 		Erase it, later.
+ **/
+.Admin>div {
+	border: solid 1px red;
 }

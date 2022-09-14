@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import './_.css';
 import axios from 'axios';
 
@@ -8,6 +8,7 @@ const api = axios.create({
 
 interface IProjectBoard {
 	theDay: string
+	setSelectedProject: Dispatch<SetStateAction<projectType | null>>
 }
 type projectType = {
 	project: {
@@ -29,10 +30,10 @@ type projectType = {
 		name: string,
 		mobileNumber: string
 	}[]
-}[]
+}
 export const ProjectBoard = (props: IProjectBoard) => {
 
-	const [ project, setProject ] = useState<projectType>([]);
+	const [ project, setProject ] = useState<projectType[]>([]);
 
 	//	theDay가 속하는 달의 project를 업데이트 해 준다.
 	useEffect(() => {
@@ -48,6 +49,10 @@ export const ProjectBoard = (props: IProjectBoard) => {
 		}
 		getProject();
 	}, [props.theDay])
+
+	const selectProject = (ele: any) => {
+		props.setSelectedProject(ele);
+	}
 
 	return (
 		<div className="Board">
@@ -70,7 +75,7 @@ export const ProjectBoard = (props: IProjectBoard) => {
 					{project.map((e: any, idx: number, arr: any) => {
 						const paidCount = e.reservation.reduce((prev: any, curr: any) => {return curr.payment !== 0 ? prev+1 : prev}, 0)
 						return (
-							<tr key={'tr_No.'+idx}>
+							<tr key={'tr_No.'+idx} onClick={() => selectProject(e)}>
 								<th>{idx === 0 ? e.project.date.substr(5) : arr[idx-1].project.date !== e.project.date ? e.project.date.substr(5) : ''}</th>
 								<th>{e.project.session}</th>
 								<th>{e.project.id}</th>
@@ -93,18 +98,40 @@ export const ProjectBoard = (props: IProjectBoard) => {
 	)
 }
 
-export const ProjectController = () => {
+interface IProjectController {
+	selectedProject: projectType | null
+}
+export const ProjectController = (props: IProjectController) => {
 	return (
 		<div className="Controller">
-			ProjectController
+			<div>
+				{props.selectedProject?.project.date}
+			</div>
+			<div>
+				{props.selectedProject?.project.subject}
+			</div>
+			<div>
+				{props.selectedProject?.project.name}
+			</div>
 		</div>
 	)
 }
 
-export const ProjectClipboard = () => {
+interface IProjectClipboard {
+	selectedProject: projectType | null
+}
+export const ProjectClipboard = (props: IProjectClipboard) => {
 	return (
 		<div className="Clipboard">
-			ProjectClipboard
+			<div>
+				{props.selectedProject?.project.date}
+			</div>
+			<div>
+				{props.selectedProject?.project.subject}
+			</div>
+			<div>
+				{props.selectedProject?.project.name}
+			</div>
 		</div>
 	)
 }

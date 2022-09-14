@@ -15,6 +15,27 @@ type identityType = {
 }
 type pageModeType = 'logo' | 'readProject' | 'createProject' | 'updateProject' | 'deleteProject'
 type reservationDataType = {RId: number, Rdevice: string, Rpayment: number, PId: number, Psubject: string, Pname: string, Pdate: Date, Psession: number}[];
+type projectType = {
+	project: {
+		date: string,
+		session: number,
+		id: number,
+		name: string,
+		mobileNumber: string,
+		subject: string,
+		content: string,
+		status: string,
+		exposeCount: number,
+		likeCount: number
+	},
+	reservation: {
+		id: number,
+		device: string,
+		payment: boolean,
+		name: string,
+		mobileNumber: string
+	}[]
+}
 
 function App() {
 
@@ -26,6 +47,7 @@ function App() {
 	const [ identity, setIdentity ] = useState<identityType | undefined>(undefined);
 	const [ isIdentified, setIsIdentified ] = useState<boolean>(false);
 	const [ reservationRecord, setReservationRecord ] = useState<reservationDataType>([]);
+	const [ selectedProject, setSelectedProject ] = useState<projectType | null>(null);
 
 	useEffect(() => {
 		if(identity !== undefined) setIsIdentified(true);
@@ -58,9 +80,9 @@ function App() {
 
 	return (
 		<div className="Admin">
-			<ProjectBoard theDay={theDay} />
-			<ProjectController />
-			<ProjectClipboard />
+			<ProjectBoard theDay={theDay} setSelectedProject={setSelectedProject} />
+			<ProjectController selectedProject={selectedProject} />
+			<ProjectClipboard selectedProject={selectedProject} />
 		</div>
 	)
 

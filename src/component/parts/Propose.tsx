@@ -111,6 +111,7 @@ export const CreateProject = (props: IcreateProject) => {
 	)
 }
 
+
 interface IreadProject {
 	theDay: string
 	session: number | undefined
@@ -119,8 +120,8 @@ export const ReadProject = (props: IreadProject) => {
 
 	type loadProjectType = {
 		subject: string,
-		content: string
-		name: string
+		content: string,
+		name: string,
 		mobileNumber: string
 	}
 	const [ loadProject, setLoadProject ] = useState<null | loadProjectType>(null);

@@ -6,10 +6,6 @@ const api = axios.create({
 	baseURL: `http://${process.env.REACT_APP_API_SERVER_HOST}:${process.env.REACT_APP_API_SERVER_PORT}`,
 })
 
-interface IProjectBoard {
-	theDay: string
-	setSelectedProject: Dispatch<SetStateAction<projectType | null>>
-}
 type projectType = {
 	project: {
 		date: string,
@@ -31,7 +27,11 @@ type projectType = {
 		mobileNumber: string
 	}[]
 }
-
+interface IProjectBoard {
+	theDay: string
+	setSelectedProject: Dispatch<SetStateAction<projectType | null>>
+	selectedProject: projectType | null
+}
 export const ProjectBoard = (props: IProjectBoard) => {
 
 	const [ project, setProject ] = useState<projectType[]>([]);
@@ -49,7 +49,7 @@ export const ProjectBoard = (props: IProjectBoard) => {
 			}));
 		}
 		getProject();
-	}, [props.theDay])
+	}, [props.theDay, props.selectedProject])
 
 	const selectProject = (ele: any) => {
 		props.setSelectedProject(ele);
@@ -101,37 +101,89 @@ export const ProjectBoard = (props: IProjectBoard) => {
 
 interface IProjectController {
 	selectedProject: projectType | null
+	setSelectedProject: Dispatch<SetStateAction<projectType | null>>
 	showDetail: boolean
 	setShowDetail: Dispatch<SetStateAction<boolean>>
 }
 export const ProjectController = (props: IProjectController) => {
 
-	const switchDetail = () => {
-		props.setShowDetail(!props.showDetail);
+	const [ commentOnOff, setCommentOnOff ] = useState<boolean>(false);
+	const [ comment, setComment ] = useState<string>('');
+
+	const onChangeTextField = (e: any) => {
+		setComment(e.target.value);
 	}
+
+	useEffect(() => {setCommentOnOff(false)}, [props.selectedProject])	//	선택한 프로젝트가 바뀌면 코멘트 창 닫기
+
+	//	프로젝트 승인 이벤트. pending 상태인 프로젝트에 취하는 액션
+	const approveProject = () => {
+		if(window.confirm('정말로 승인하시겠습니까? "예"를 누르시면 즉시 예약 가능 상태로 전환됩니다.')){
+			api.put('/project/status', {byWhom: 'admin', toDo: 'approve', projectId: props.selectedProject?.project.id})
+			props.setSelectedProject(null);
+			alert('승인되었습니다.');
+		}
+	}
+	
+	//	프로젝트 반려 이벤트. pending 상태인 프로젝트에 취하는 액션
+	const rejectProject = () => {
+		if(window.confirm('이 결정은 되돌릴 수 없습니다. 정말로 반려하시겠습니까?')){
+			api.put('/project/status', {byWhom: 'admin', toDo: 'reject', projectId: props.selectedProject?.project.id, comment: comment})
+			props.setSelectedProject(null);
+			alert('반려되었습니다.');
+		}
+	}
+	const commentFormForReject = 
+		<div className="commentForm">
+			<p>반려 사유를 적어주세요.</p>
+			<textarea placeholder="분명하게 설명 해 주세요." onChange={onChangeTextField}></textarea>
+			<button onClick={() => {setCommentOnOff(false)}}>취소</button>
+			<button onClick={rejectProject}>확인</button>
+		</div>
+	
+	//	프로젝트 취소 이벤트. recruiting 또는 confirmed 상태
+	const cancelProject = () => {
+		if(window.confirm('이 결정은 되돌릴 수 없습니다. 정말로 취소하시겠습니까?')){
+			api.put('/project/status', {byWhom: 'admin', toDo: 'cancel', projectId: props.selectedProject?.project.id})
+			props.setSelectedProject(null);
+			alert('취소되었습니다. 제안자 및 참석 예약자들에게 정확히 안내 바랍니다.');
+		}
+	}
+	const commentFormForCancel = 
+		<div className="commentForm">
+			<p>취소 사유를 적어주세요.</p>
+			<textarea placeholder="분명하게 설명 해 주세요." onChange={onChangeTextField}></textarea>
+			<button onClick={() => {setCommentOnOff(false)}}>취소</button>
+			<button onClick={cancelProject}>확인</button>
+		</div>
+
 
 	let actions = null;
 	switch(props.selectedProject?.project.status){
 		case 'pending':
 			actions = 
 				<>
-					<button onClick={switchDetail}>상세 보기</button>
-					<button>승인</button>
-					<button>반려</button>
+					<button onClick={() => {props.setShowDetail(!props.showDetail)}}>상세 보기</button>
+					<button onClick={approveProject}>승인</button>
+					<button onClick={() => {setCommentOnOff(!commentOnOff)}}>반려</button>
+					{commentOnOff && commentFormForReject}
 				</>
 			break;
 		case 'recruiting':
 			actions = 
 				<>
-					<button onClick={switchDetail}>상세 보기</button>
-					<button>강제 취소</button>
+					<button onClick={() => {props.setShowDetail(!props.showDetail)}}>상세 보기</button>
+					<button onClick={() => {setCommentOnOff(!commentOnOff)}}>강제 취소</button>
+					{commentOnOff && commentFormForCancel}
 				</>
 			break;
 		case 'confirmed':
 			actions = 
 				<>
-					<button onClick={switchDetail}>상세 보기</button>
-					<button>강제 취소</button>
+					<button onClick={() => {props.setShowDetail(!props.showDetail)}}>상세 보기</button>
+					<button className="Hide"></button>
+					<button onClick={() => {setCommentOnOff(!commentOnOff)}}>강제 취소</button>
+					{commentOnOff && commentFormForCancel}
 				</>
 			break;
 //		case 'rejected':
@@ -143,9 +195,13 @@ export const ProjectController = (props: IProjectController) => {
 	return (
 		<div className="Controller">
 			{actions}
+			<div>언제 : {props.selectedProject?.project.date} ({props.selectedProject?.project.session})</div>
+			<div>누가 : {props.selectedProject?.project.name}, {props.selectedProject?.project.mobileNumber}</div>
+			<div>제목 : {props.selectedProject?.project.subject}</div>
 		</div>
 	)
 }
+
 
 interface IProjectClipboard {
 	selectedProject: projectType | null
@@ -165,6 +221,7 @@ export const ProjectClipboard = (props: IProjectClipboard) => {
 		</div>
 	)
 }
+
 
 interface IProjectDetail {
 	selectedProject: projectType | null

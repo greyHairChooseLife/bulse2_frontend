@@ -85,8 +85,8 @@ function App() {
 
 	return (
 		<div className="Admin">
-			<ProjectBoard theDay={theDay} setSelectedProject={setSelectedProject} />
-			<ProjectController selectedProject={selectedProject} setShowDetail={setShowDetail} showDetail={showDetail} />
+			<ProjectBoard theDay={theDay} setSelectedProject={setSelectedProject} selectedProject={selectedProject} />
+			<ProjectController selectedProject={selectedProject} setSelectedProject={setSelectedProject} setShowDetail={setShowDetail} showDetail={showDetail} />
 			<ProjectClipboard selectedProject={selectedProject} />
 			{showDetail && <ProjectDetail selectedProject={selectedProject} />}
 		</div>

@@ -51,10 +51,6 @@ export const ProjectBoard = (props: IProjectBoard) => {
 		getProject();
 	}, [props.theDay, props.selectedProject])
 
-	const selectProject = (ele: any) => {
-		props.setSelectedProject(ele);
-	}
-
 	return (
 		<div className="Board">
 			<table>
@@ -76,7 +72,13 @@ export const ProjectBoard = (props: IProjectBoard) => {
 					{project.map((e: any, idx: number, arr: any) => {
 						const paidCount = e.reservation.reduce((prev: any, curr: any) => {return curr.payment !== 0 ? prev+1 : prev}, 0)
 						return (
-							<tr key={'tr_No.'+idx} onClick={() => selectProject(e)}>
+							<tr key={'tr_No.'+idx} onClick={(ele: any) => {
+								props.setSelectedProject(e)
+								//	클릭하면 해당 tr의 배경색이 변하는 이벤트. 그러나 다른 tr을 선택 할 때 나머지가 사라지는 것을 못하겠다...
+								//	달려들면 할 수야 있겠지만 작은 이벤트인 만큼 작은 코드와 설계로 할 방법이 떠오르질 않네;;
+//								if(props.selectedProject?.project.id === e.project.id) ele.currentTarget.style.backgroundColor = "red";
+//								else ele.currentTarget.style.backgroundColor = "white";
+								}}>
 								<th>{idx === 0 ? e.project.date.substr(5) : arr[idx-1].project.date !== e.project.date ? e.project.date.substr(5) : ''}</th>
 								<th>{e.project.session}</th>
 								{e.project.status === 'pending' ? <th className="StatusPending">{e.project.status}</th>
@@ -98,6 +100,7 @@ export const ProjectBoard = (props: IProjectBoard) => {
 		</div>
 	)
 }
+
 
 interface IProjectController {
 	selectedProject: projectType | null
@@ -195,9 +198,9 @@ export const ProjectController = (props: IProjectController) => {
 	return (
 		<div className="Controller">
 			{actions}
-			<div>언제 : {props.selectedProject?.project.date} ({props.selectedProject?.project.session})</div>
-			<div>누가 : {props.selectedProject?.project.name}, {props.selectedProject?.project.mobileNumber}</div>
-			<div>제목 : {props.selectedProject?.project.subject}</div>
+			{props.selectedProject !== null && <div>언제 : {props.selectedProject?.project.date} ({props.selectedProject?.project.session})</div>}
+			{props.selectedProject !== null && <div>누가 : {props.selectedProject?.project.name}, {props.selectedProject?.project.mobileNumber}</div>}
+			{props.selectedProject !== null && <div>제목 : {props.selectedProject?.project.subject}</div>}
 		</div>
 	)
 }
@@ -207,17 +210,41 @@ interface IProjectClipboard {
 	selectedProject: projectType | null
 }
 export const ProjectClipboard = (props: IProjectClipboard) => {
+
+	//	클립보드로 복사하는 기능. navigator 전역 객체에서 지원한다.
+	const copyIt = (e: any) => {
+		navigator.clipboard.writeText(e.target.innerText)
+	}
+
+	let article = null;
+	if(props.selectedProject !== null){
+		const {id, subject, mobileNumber, name, date} = props.selectedProject.project;
+		article =
+			<table>
+				<thead>
+					<tr>
+						<th>ID</th>
+						<th>제목</th>
+						<th>전화번호</th>
+						<th>이름</th>
+						<th>날짜</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr onClick={copyIt}>
+						<th>{id}</th>
+						<th>{subject}</th>
+						<th>{mobileNumber}</th>
+						<th>{name}</th>
+						<th>{date}</th>
+					</tr>
+				</tbody>
+			</table>
+	}
+
 	return (
 		<div className="Clipboard">
-			<div>
-				{props.selectedProject?.project.date}
-			</div>
-			<div>
-				{props.selectedProject?.project.subject}
-			</div>
-			<div>
-				{props.selectedProject?.project.name}
-			</div>
+			{article}
 		</div>
 	)
 }

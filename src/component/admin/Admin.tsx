@@ -31,6 +31,7 @@ type projectType = {
 		mobileNumber: string
 	}[]
 }
+
 export const ProjectBoard = (props: IProjectBoard) => {
 
 	const [ project, setProject ] = useState<projectType[]>([]);
@@ -61,14 +62,14 @@ export const ProjectBoard = (props: IProjectBoard) => {
 					<tr>
 						<th>date</th>
 						<th>session</th>
-						<th>id</th>
-						<th>name / number</th>
-						<th>subject</th>
 						<th>status</th>
+						<th>subject</th>
+						<th>name / number</th>
 						<th>expose</th>
 						<th>like</th>
 						<th>reservated</th>
 						<th>paid ratio</th>
+						<th>id</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -78,17 +79,17 @@ export const ProjectBoard = (props: IProjectBoard) => {
 							<tr key={'tr_No.'+idx} onClick={() => selectProject(e)}>
 								<th>{idx === 0 ? e.project.date.substr(5) : arr[idx-1].project.date !== e.project.date ? e.project.date.substr(5) : ''}</th>
 								<th>{e.project.session}</th>
-								<th>{e.project.id}</th>
-								<th>{e.project.name} / {e.project.mobileNumber.substr(3, 4)+'-'+e.project.mobileNumber.substr(7, 4)}</th>
-								<th>{e.project.subject.substr(0, 10)}...</th>
 								{e.project.status === 'pending' ? <th className="StatusPending">{e.project.status}</th>
 								: e.project.status === 'recruiting' ? <th className="StatusRecruiting">{e.project.status}</th>
 								: e.project.status === 'confirmed' ? <th className="StatusConfirmed">{e.project.status}</th>
 								: null}
+								<th>{e.project.subject.substr(0, 7)}{e.project.subject.length > 7 && '...'}</th>
+								<th>{e.project.name} / {e.project.mobileNumber.substr(3, 4)+'-'+e.project.mobileNumber.substr(7, 4)}</th>
 								<th>{e.project.exposeCount}</th>
 								<th>{e.project.likeCount}</th>
 								<th>{e.reservation.length}</th>
 								<th>{paidCount}/{e.reservation.length}</th>
+								<th>{e.project.id}</th>
 							</tr>
 						)
 					})}
@@ -100,19 +101,48 @@ export const ProjectBoard = (props: IProjectBoard) => {
 
 interface IProjectController {
 	selectedProject: projectType | null
+	showDetail: boolean
+	setShowDetail: Dispatch<SetStateAction<boolean>>
 }
 export const ProjectController = (props: IProjectController) => {
+
+	const switchDetail = () => {
+		props.setShowDetail(!props.showDetail);
+	}
+
+	let actions = null;
+	switch(props.selectedProject?.project.status){
+		case 'pending':
+			actions = 
+				<>
+					<button onClick={switchDetail}>상세 보기</button>
+					<button>승인</button>
+					<button>반려</button>
+				</>
+			break;
+		case 'recruiting':
+			actions = 
+				<>
+					<button onClick={switchDetail}>상세 보기</button>
+					<button>강제 취소</button>
+				</>
+			break;
+		case 'confirmed':
+			actions = 
+				<>
+					<button onClick={switchDetail}>상세 보기</button>
+					<button>강제 취소</button>
+				</>
+			break;
+//		case 'rejected':
+//			break;
+//		case 'canceled':
+//			break;
+	}
+
 	return (
 		<div className="Controller">
-			<div>
-				{props.selectedProject?.project.date}
-			</div>
-			<div>
-				{props.selectedProject?.project.subject}
-			</div>
-			<div>
-				{props.selectedProject?.project.name}
-			</div>
+			{actions}
 		</div>
 	)
 }
@@ -131,6 +161,22 @@ export const ProjectClipboard = (props: IProjectClipboard) => {
 			</div>
 			<div>
 				{props.selectedProject?.project.name}
+			</div>
+		</div>
+	)
+}
+
+interface IProjectDetail {
+	selectedProject: projectType | null
+}
+export const ProjectDetail = (props: IProjectDetail) => {
+	return (
+		<div className="Detail">
+			<div>
+				{props.selectedProject?.project.subject}
+			</div>
+			<div>
+				{props.selectedProject?.project.content}
 			</div>
 		</div>
 	)

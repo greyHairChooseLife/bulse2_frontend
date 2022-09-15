@@ -3,7 +3,7 @@ import { Login } from './component/parts/Login';
 import { Calendar } from './component/parts/Calendar';
 import { Schedule } from './component/parts/Schedule';
 import { GetIdentity, CreateProject, ReadProject, UpdateProject, DeleteProject } from './component/parts/Propose';
-import { ProjectBoard, ProjectController, ProjectClipboard } from './component/admin/Admin';
+import { ProjectBoard, ProjectController, ProjectClipboard, ProjectDetail } from './component/admin/Admin';
 import './App.css';
 
 const today = new Date();
@@ -48,6 +48,11 @@ function App() {
 	const [ isIdentified, setIsIdentified ] = useState<boolean>(false);
 	const [ reservationRecord, setReservationRecord ] = useState<reservationDataType>([]);
 	const [ selectedProject, setSelectedProject ] = useState<projectType | null>(null);
+	const [ showDetail, setShowDetail ] = useState<boolean>(false);
+
+	useEffect(() => {
+		setShowDetail(false);
+	}, [selectedProject])
 
 	useEffect(() => {
 		if(identity !== undefined) setIsIdentified(true);
@@ -81,8 +86,9 @@ function App() {
 	return (
 		<div className="Admin">
 			<ProjectBoard theDay={theDay} setSelectedProject={setSelectedProject} />
-			<ProjectController selectedProject={selectedProject} />
+			<ProjectController selectedProject={selectedProject} setShowDetail={setShowDetail} showDetail={showDetail} />
 			<ProjectClipboard selectedProject={selectedProject} />
+			{showDetail && <ProjectDetail selectedProject={selectedProject} />}
 		</div>
 	)
 

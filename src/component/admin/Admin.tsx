@@ -89,7 +89,9 @@ export const ProjectBoard = (props: IProjectBoard) => {
 								<th>{e.project.name} / {e.project.mobileNumber.substr(3, 4)+'-'+e.project.mobileNumber.substr(7, 4)}</th>
 								<th>{e.project.exposeCount}</th>
 								<th>{e.project.likeCount}</th>
-								<th>{e.reservation.length}</th>
+								<th onClick={() => {
+									console.log('th clicked')
+								}}>{e.reservation.length}</th>
 								<th>{paidCount}/{e.reservation.length}</th>
 								<th>{e.project.id}</th>
 							</tr>
@@ -198,9 +200,7 @@ export const ProjectController = (props: IProjectController) => {
 	return (
 		<div className="Controller">
 			{actions}
-			{props.selectedProject !== null && <div>언제 : {props.selectedProject?.project.date} ({props.selectedProject?.project.session})</div>}
-			{props.selectedProject !== null && <div>누가 : {props.selectedProject?.project.name}, {props.selectedProject?.project.mobileNumber}</div>}
-			{props.selectedProject !== null && <div>제목 : {props.selectedProject?.project.subject}</div>}
+			{props.selectedProject !== null && <div>{props.selectedProject?.project.status}</div>}
 		</div>
 	)
 }
@@ -216,10 +216,11 @@ export const ProjectClipboard = (props: IProjectClipboard) => {
 		navigator.clipboard.writeText(e.target.innerText)
 	}
 
-	let article = null;
+	let projectTable = null;
+	let reservationTable = null;
 	if(props.selectedProject !== null){
 		const {id, subject, mobileNumber, name, date} = props.selectedProject.project;
-		article =
+		projectTable =
 			<table>
 				<thead>
 					<tr>
@@ -240,11 +241,41 @@ export const ProjectClipboard = (props: IProjectClipboard) => {
 					</tr>
 				</tbody>
 			</table>
+
+		let reservator = null;
+		if(props.selectedProject.reservation[0].id !== null){
+			reservator = props.selectedProject.reservation.map((ele: any) => {return [ele.name, ele.mobileNumber, ele.payment, ele.id]}).
+				map((ele: any, idx: number) => {
+					return (
+						<tr key={'reservator_No.'+idx} onClick={copyIt}>
+							<th>{ele[0]}</th>
+							<th>{ele[1]}</th>
+							<th>{ele[2] === 0 ? '미납' : '납부완료'}</th>
+							<th>{ele[3]}</th>
+						</tr>
+					)
+				})
+		}
+		reservationTable =
+			<table>
+				<thead>
+					<tr>
+						<th>이름</th>
+						<th>전화번호</th>
+						<th>보증금 납부 여부</th>
+						<th>예약번호</th>
+					</tr>
+				</thead>
+				<tbody>
+					{reservator}
+				</tbody>
+			</table>
 	}
 
 	return (
 		<div className="Clipboard">
-			{article}
+			{projectTable}
+			{reservationTable}
 		</div>
 	)
 }

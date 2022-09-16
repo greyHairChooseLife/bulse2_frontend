@@ -46,7 +46,7 @@ function App() {
 	const [ pageMode, setPageMode ] = useState<pageModeType>('logo');	//	화면 우측에 메인페이지를 뜻한다. (달력, 스케쥴, 로그인 등은 항상 존재하는 컨트롤러들)
 	const [ identity, setIdentity ] = useState<identityType | undefined>(undefined);
 	const [ isIdentified, setIsIdentified ] = useState<boolean>(false);
-	const [ reservationRecord, setReservationRecord ] = useState<reservationDataType>([]);
+	const [ reservationRecord, setReservationRecord ] = useState<reservationDataType>([]);	//	중복 예약 막기 위해서 로그인한 유저의 모든 예약 내용을 업데이트한다.(그 달의)
 	const [ selectedProject, setSelectedProject ] = useState<projectType | null>(null);
 	const [ showDetail, setShowDetail ] = useState<boolean>(false);
 
@@ -85,6 +85,11 @@ function App() {
 
 	return (
 		<div className="Admin">
+			<div>
+				{selectedProject !== null && <div>언제 : {selectedProject?.project.date} ({selectedProject?.project.session})</div>}
+				{selectedProject !== null && <div>누가 : {selectedProject?.project.name}, {selectedProject?.project.mobileNumber}</div>}
+				{selectedProject !== null && <div>제목 : {selectedProject?.project.subject}</div>}
+			</div>
 			<ProjectBoard theDay={theDay} setSelectedProject={setSelectedProject} selectedProject={selectedProject} />
 			<ProjectController selectedProject={selectedProject} setSelectedProject={setSelectedProject} setShowDetail={setShowDetail} showDetail={showDetail} />
 			<ProjectClipboard selectedProject={selectedProject} />

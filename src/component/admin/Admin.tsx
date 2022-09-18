@@ -70,9 +70,9 @@ export const ProjectBoard = (props: IProjectBoard) => {
 				</thead>
 				<tbody>
 					{project.map((e: any, idx: number, arr: any) => {
-						const paidCount = e.reservation.reduce((prev: any, curr: any) => {return curr.payment !== 0 ? prev+1 : prev}, 0)
+						const paidCount = e.reservation.reduce((prev: any, curr: any) => {return curr.payment === 0 ? prev : curr.payment === null ? prev : prev+1}, 0)
 						return (
-							<tr key={'tr_No.'+idx} onClick={(ele: any) => {
+							<tr key={'tr_No.'+idx} onClick={() => {
 								props.setSelectedProject(e)
 								//	클릭하면 해당 tr의 배경색이 변하는 이벤트. 그러나 다른 tr을 선택 할 때 나머지가 사라지는 것을 못하겠다...
 								//	달려들면 할 수야 있겠지만 작은 이벤트인 만큼 작은 코드와 설계로 할 방법이 떠오르질 않네;;
@@ -89,10 +89,8 @@ export const ProjectBoard = (props: IProjectBoard) => {
 								<th>{e.project.name} / {e.project.mobileNumber.substr(3, 4)+'-'+e.project.mobileNumber.substr(7, 4)}</th>
 								<th>{e.project.exposeCount}</th>
 								<th>{e.project.likeCount}</th>
-								<th onClick={() => {
-									console.log('th clicked')
-								}}>{e.reservation.length}</th>
-								<th>{paidCount}/{e.reservation.length}</th>
+								<th>{e.reservation[0].id === null ? 0 : e.reservation.length}</th>
+								<th>{paidCount}/{e.reservation[0].id === null ? 0 : e.reservation.length}</th>
 								<th>{e.project.id}</th>
 							</tr>
 						)

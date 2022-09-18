@@ -4,6 +4,7 @@ import { Calendar } from './component/parts/Calendar';
 import { Schedule } from './component/parts/Schedule';
 import { GetIdentity, CreateProject, ReadProject, UpdateProject, DeleteProject } from './component/parts/Propose';
 import { ProjectBoard, ProjectController, ProjectClipboard, ProjectDetail } from './component/admin/Admin';
+import { UserInfo, RelatedProject } from './component/user/UserInfo';
 import './App.css';
 
 const today = new Date();
@@ -83,21 +84,12 @@ function App() {
 			break;
 	}
 
-	return (
-		<div className="Admin">
-			<div>
-				{selectedProject !== null && <div>언제 : {selectedProject?.project.date} ({selectedProject?.project.session})</div>}
-				{selectedProject !== null && <div>누가 : {selectedProject?.project.name}, {selectedProject?.project.mobileNumber}</div>}
-				{selectedProject !== null && <div>제목 : {selectedProject?.project.subject}</div>}
-			</div>
-			<ProjectBoard theDay={theDay} setSelectedProject={setSelectedProject} selectedProject={selectedProject} />
-			<ProjectController selectedProject={selectedProject} setSelectedProject={setSelectedProject} setShowDetail={setShowDetail} showDetail={showDetail} />
-			<ProjectClipboard selectedProject={selectedProject} />
-			{showDetail && <ProjectDetail selectedProject={selectedProject} />}
+	const modeUserInfo = 
+		<div className="UserInfo">
+			<UserInfo identity={identity} />
+			<RelatedProject />
 		</div>
-	)
-
-	return (
+	const modeApp = 
 		<div className="App">
 			<div>
 				<Calendar setTheDay={setTheDay} setSession={setSession} setPageMode={setPageMode} pageMode={pageMode} />
@@ -111,6 +103,30 @@ function App() {
 			<div className="Login">
 				<Login identity={identity} setIdentity={setIdentity} setReservationRecord={setReservationRecord} theDay={theDay} />
 			</div>
+		</div>
+	const modeAdmin =
+		<div className="Admin">
+			<div>
+				{selectedProject !== null && <div>언제 : {selectedProject?.project.date} ({selectedProject?.project.session})</div>}
+				{selectedProject !== null && <div>누가 : {selectedProject?.project.name}, {selectedProject?.project.mobileNumber}</div>}
+				{selectedProject !== null && <div>제목 : {selectedProject?.project.subject}</div>}
+			</div>
+			<ProjectBoard theDay={theDay} setSelectedProject={setSelectedProject} selectedProject={selectedProject} />
+			<ProjectController selectedProject={selectedProject} setSelectedProject={setSelectedProject} setShowDetail={setShowDetail} showDetail={showDetail} />
+			<ProjectClipboard selectedProject={selectedProject} />
+			{showDetail && <ProjectDetail selectedProject={selectedProject} />}
+		</div>
+
+	const modeGroup = [modeApp, modeAdmin, modeUserInfo];
+
+	const [ mode, setMode ] = useState<0|1|2>(0);
+
+	return (
+		<div className="root">
+			<button onClick={()=>{setMode(0)}}>App</button>
+			<button onClick={()=>{setMode(1)}}>Admin</button>
+			<button onClick={()=>{setMode(2)}}>UserInfo</button>
+			{modeGroup[mode]}
 		</div>
 	);
 }

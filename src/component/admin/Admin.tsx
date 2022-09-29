@@ -147,7 +147,7 @@ export const ProjectController = (props: IProjectController) => {
 	//	프로젝트 취소 이벤트. recruiting 또는 confirmed 상태
 	const cancelProject = () => {
 		if(window.confirm('이 결정은 되돌릴 수 없습니다. 정말로 취소하시겠습니까?')){
-			api.put('/project/status', {byWhom: 'admin', toDo: 'cancel', projectId: props.selectedProject?.project.id})
+			api.put('/project/status', {byWhom: 'admin', toDo: 'cancel', projectId: props.selectedProject?.project.id, comment: comment})
 			props.setSelectedProject(null);
 			alert('취소되었습니다. 제안자 및 참석 예약자들에게 정확히 안내 바랍니다.');
 		}

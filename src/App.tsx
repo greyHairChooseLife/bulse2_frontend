@@ -87,7 +87,7 @@ function App() {
 	const modeUserInfo = 
 		<div className="UserInfo">
 			<UserInfo identity={identity} />
-			<RelatedProject />
+			<RelatedProject identity={identity} />
 		</div>
 	const modeApp = 
 		<div className="App">

@@ -4,28 +4,51 @@
 
 .Info {
 	grid-column: 1/2;
-	display: grid;
-	grid-template-rows: 1fr 2fr;
 	width: 100%;
 	height: 100%;
 }
-
-.Info > div:nth-child(2) label {
-	display: block;
-}
-
-.Info > div:nth-child(2) button {
-	display: block;
-}
-
 
 
 /*
- * 	RelatedProject 
+ * 	Project 
  */
 
-.RelatedProject {
+.Project {
 	grid-column: 2/3;
 	width: 100%;
 	height: 100%;
+
+}
+
+.Project>div {
+	width: 100%;
+	height: 8%;
+}
+
+.Project>div>button {
+	width: 50%;
+	height: 100%;
+	font-size: 1.7rem;
+}
+
+.Project table {
+	margin-top: 3%;
+	width: 100%;
+	border-spacing: 0;
+	border-collapse: collapse;
+}
+
+.Project th {
+	height: 80px;
+	font-size: 1.3rem;
+}
+
+.Project td {
+	height: 50px;
+	border: solid 2px red;
+	text-align: center;
+}
+
+.Project tbody>tr:hover {
+	background-color: green;
 }

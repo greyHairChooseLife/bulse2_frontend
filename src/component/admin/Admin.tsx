@@ -23,6 +23,7 @@ type projectType = {
 		id: number,
 		device: string,
 		payment: boolean,
+		check_payment: string,
 		name: string,
 		mobileNumber: string
 	}[]
@@ -71,6 +72,8 @@ export const ProjectBoard = (props: IProjectBoard) => {
 				<tbody>
 					{project.map((e: any, idx: number, arr: any) => {
 						const paidCount = e.reservation.reduce((prev: any, curr: any) => {return curr.payment === 0 ? prev : curr.payment === null ? prev : prev+1}, 0)
+						let checkPayment = null;
+					e.reservation.forEach((ele: any) => {if(ele.check_payment !== null && ele.payment === 0) checkPayment = <span className="checkPaymentAlarm">!</span>})
 						return (
 							<tr key={'tr_No.'+idx} onClick={() => {
 								props.setSelectedProject(e)
@@ -90,7 +93,7 @@ export const ProjectBoard = (props: IProjectBoard) => {
 								<th>{e.project.exposeCount}</th>
 								<th>{e.project.likeCount}</th>
 								<th>{e.reservation[0].id === null ? 0 : e.reservation.length}</th>
-								<th>{paidCount}/{e.reservation[0].id === null ? 0 : e.reservation.length}</th>
+								<th>{checkPayment} {paidCount}/{e.reservation[0].id === null ? 0 : e.reservation.length}</th>
 								<th>{e.project.id}</th>
 							</tr>
 						)
@@ -208,7 +211,6 @@ interface IProjectClipboard {
 	selectedProject: projectType | null
 }
 export const ProjectClipboard = (props: IProjectClipboard) => {
-
 	//	클립보드로 복사하는 기능. navigator 전역 객체에서 지원한다.
 	const copyIt = (e: any) => {
 		navigator.clipboard.writeText(e.target.innerText)
@@ -242,14 +244,27 @@ export const ProjectClipboard = (props: IProjectClipboard) => {
 
 		let reservator = null;
 		if(props.selectedProject.reservation[0].id !== null){
-			reservator = props.selectedProject.reservation.map((ele: any) => {return [ele.name, ele.mobileNumber, ele.payment, ele.id]}).
+			reservator = props.selectedProject.reservation.map((ele: any) => {return [ele.id, ele.name, ele.mobileNumber, ele.payment, ele.check_payment]}).
 				map((ele: any, idx: number) => {
+					const depositCtrl = ele[4] !== null && ele[3] === 0 ? 
+						//	아래 button 두개에 들어가는 onClick이벤트는 현재 또는 상위 컴포넌트를 리렌더링 시키지 않는다. 즉 의도 한 대로 DB에 영향은 미치지만 user가 화면상에서 즉시 피드백 받지 못한다.
+						//	굳이 굳이 만들자면 만들 수는 있다. 그러나 이건 일단 그냥 두기로 한다. 추후 더 많은 리액트 훅과 디자인 패턴을 공부하면서 개선해 나갈 수 있을 것이다.
+						<th>
+							<button onClick={() => {
+								api.put('reservation', {RID: ele[0], payment: true});
+							}}>입금확인</button>
+							<button onClick={() => {
+								api.put('reservation/askCheckPayment', {RID: ele[0], deny: true});
+							}}>요청취소</button>
+						</th>
+						: null;
 					return (
 						<tr key={'reservator_No.'+idx} onClick={copyIt}>
 							<th>{ele[0]}</th>
 							<th>{ele[1]}</th>
-							<th>{ele[2] === 0 ? '미납' : '납부완료'}</th>
-							<th>{ele[3]}</th>
+							<th>{ele[2]}</th>
+							<th>{ele[3] !== 0 ? '납부완료' : ele[4] !== null ? <span className="checkPaymentAlert">확인 요청: {ele[4]}</span> : '미납'}</th>
+							{depositCtrl}
 						</tr>
 					)
 				})
@@ -258,10 +273,11 @@ export const ProjectClipboard = (props: IProjectClipboard) => {
 			<table>
 				<thead>
 					<tr>
+						<th>예약번호</th>
 						<th>이름</th>
 						<th>전화번호</th>
 						<th>보증금 납부 여부</th>
-						<th>예약번호</th>
+						<th></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -283,8 +299,7 @@ interface IProjectDetail {
 	selectedProject: projectType | null
 }
 export const ProjectDetail = (props: IProjectDetail) => {
-	return (
-		<div className="Detail">
+	return ( <div className="Detail">
 			<div>
 				{props.selectedProject?.project.subject}
 			</div>

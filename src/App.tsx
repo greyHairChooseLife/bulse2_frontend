@@ -33,6 +33,7 @@ type projectType = {
 		id: number,
 		device: string,
 		payment: boolean,
+		check_payment: string,
 		name: string,
 		mobileNumber: string
 	}[]

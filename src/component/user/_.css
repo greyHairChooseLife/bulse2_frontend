@@ -17,7 +17,6 @@
 	grid-column: 2/3;
 	width: 100%;
 	height: 100%;
-
 }
 
 .Project>div {
@@ -25,7 +24,12 @@
 	height: 8%;
 }
 
-.Project>div>button {
+.Project>div>button:nth-child(1) {
+	width: 50%;
+	height: 100%;
+	font-size: 1.7rem;
+}
+.Project>div>button:nth-child(2) {
 	width: 50%;
 	height: 100%;
 	font-size: 1.7rem;
@@ -50,5 +54,57 @@
 }
 
 .Project tbody>tr:hover {
-	background-color: green;
+	background-color: linen;
+}
+
+.Project tbody td:nth-child(4) {
+	color: blue;
+}
+
+
+/*
+ * misc 
+ */
+
+.Paid {
+	color: red!important;
+}
+
+.Project>div:nth-child(3) {
+	position: absolute;
+	left: 25vw;
+	top: 30vh;
+	width: 50vw;
+	height: 40vh;
+	background-color: lightgreen;
+	padding: 3rem;
+	box-sizing: border-box;
+	z-index: 2;
+}
+.Project>div:nth-child(4) {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100vw;
+	height: 100vh;
+	background-color: white;
+	opacity: 0.8;
+	z-index: 1;
+	cursor: pointer;
+}
+
+.Deposit>div:nth-child(4) {
+	margin-top: 3rem;
+	color: red;
+}
+.Deposit>button {
+	margin-top: 2rem;
+}
+.DepositBG:hover {
+	background-color: grey!important;
+}
+
+.BlueText {
+	color: blue;
+	font-size: 0.8rem;
 }

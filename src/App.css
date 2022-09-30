@@ -78,3 +78,16 @@ body {
 .UserInfo>div {
 	border: solid 1px red;
 }
+
+/**
+ * 		misc
+ **/
+
+.checkPaymentAlert {
+	font-size: 1rem;
+	color: blue;
+}
+.checkPaymentAlarm {
+	font-size: 2.5rem;
+	color: blue;
+}

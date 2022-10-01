@@ -3,11 +3,16 @@ import { Login } from './component/parts/Login';
 import { Calendar } from './component/parts/Calendar';
 import { Schedule } from './component/parts/Schedule';
 import { GetIdentity, CreateProject, ReadProject, UpdateProject, DeleteProject } from './component/parts/Propose';
-import { ProjectBoard, ProjectController, ProjectClipboard, ProjectDetail } from './component/admin/Admin';
+import { ProjectBoard, ProjectController, ProjectClipboard, ProjectDetail, Misc } from './component/admin/Admin';
 import { UserInfo, RelatedProject } from './component/user/UserInfo';
-import './App.css';
+import './_.css';
+import axios from 'axios';
+import { useCookies } from 'react-cookie';
 
 const today = new Date();
+const api = axios.create({
+	baseURL: `http://${process.env.REACT_APP_API_SERVER_HOST}:${process.env.REACT_APP_API_SERVER_PORT}`,
+})
 
 type sessionType = 1 | 2 | 3 | undefined;
 type identityType = {
@@ -51,6 +56,12 @@ function App() {
 	const [ reservationRecord, setReservationRecord ] = useState<reservationDataType>([]);	//	중복 예약 막기 위해서 로그인한 유저의 모든 예약 내용을 업데이트한다.(그 달의)
 	const [ selectedProject, setSelectedProject ] = useState<projectType | null>(null);
 	const [ showDetail, setShowDetail ] = useState<boolean>(false);
+
+	const [ adminIdentified, setAdminIdentified ] = useState<boolean>(false);
+	const [ adminIdentity, setAdminIdentity ] = useState<{name: string, mobileNumber: string, identification: string}>({name: '', mobileNumber: '', identification: ''});
+	const [ adminCookies, setAdminCookie, removeAdminCookie ] = useCookies(['adminLogin']);
+
+	const [ mode, setMode ] = useState<0|1|2>(0);	//	 MAIN MODE
 
 	useEffect(() => {
 		setShowDetail(false);
@@ -116,17 +127,43 @@ function App() {
 			<ProjectController selectedProject={selectedProject} setSelectedProject={setSelectedProject} setShowDetail={setShowDetail} showDetail={showDetail} />
 			<ProjectClipboard selectedProject={selectedProject} />
 			{showDetail && <ProjectDetail selectedProject={selectedProject} />}
+			<Misc removeAdminCookie={removeAdminCookie} setMode={setMode} />
 		</div>
 
-	const modeGroup = [modeApp, modeAdmin, modeUserInfo];
+	//	check adminLoginCookie
+	useEffect(() => {
+		if(adminCookies.adminLogin !== undefined){
+			setAdminIdentity(adminCookies.adminLogin);
+			setAdminIdentified(true);
+		}else{
+	//		setAdminIdentity({name: '', mobileNumber: '', identification: ''});
+			setAdminIdentified(false);
+		}
+	})
 
-	const [ mode, setMode ] = useState<0|1|2>(0);
+	const onChangeAdminLoginInput = (e: any) => setAdminIdentity({...adminIdentity, [e.target.name]: e.target.value});
+	const onClickAdminLoginBtn = async () => {
+		const result = await api.get('/admin/login', {params: {...adminIdentity}});
+		if(result.data){
+			setAdminIdentified(result.data);
+			setAdminCookie('adminLogin', adminIdentity, {maxAge: 60*60*6});		//	6 hours
+		}
+	}
+	const ingressAdmin: JSX.Element =
+		<div className="IngressAdmin">
+			<input onChange={onChangeAdminLoginInput} name="name" placeholder="이름" />
+			<input onChange={onChangeAdminLoginInput} name="mobileNumber" placeholder="전화번호" />
+			<input onChange={onChangeAdminLoginInput} name="identification" placeholder="아이디" />
+			<button onClick={onClickAdminLoginBtn}>login</button>
+		</div>
+
+	const modeGroup = [modeApp, modeUserInfo, adminIdentified !== false ? modeAdmin : ingressAdmin];
 
 	return (
 		<div className="root">
 			<button onClick={()=>{setMode(0)}}>App</button>
-			<button onClick={()=>{setMode(1)}}>Admin</button>
-			<button onClick={()=>{setMode(2)}}>UserInfo</button>
+			<button onClick={()=>{setMode(1)}}>UserInfo</button>
+			<button onClick={()=>{setMode(2)}}>Admin</button>
 			{modeGroup[mode]}
 		</div>
 	);

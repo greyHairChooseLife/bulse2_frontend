@@ -91,3 +91,32 @@ body {
 	font-size: 2.5rem;
 	color: blue;
 }
+
+.IngressAdmin {
+	position: absolute;
+	width: 50vw;
+	height: 50vh;
+	border: solid 2px black;
+	left: 25vw;
+	top: 25vh;
+}
+
+.IngressAdmin>input {
+	display: block;
+	position: relative;
+	width: 50%;
+	height: 10%;
+	top: 25%;
+	left: 25%;
+	margin-bottom: 20px;
+	padding-left: 20px;
+	box-sizing: border-box;
+}
+.IngressAdmin>button {
+	display: block;
+	position: relative;
+	width: 40%;
+	height: 10%;
+	top: 30%;
+	left: 30%;
+}

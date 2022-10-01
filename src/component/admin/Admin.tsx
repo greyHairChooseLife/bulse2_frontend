@@ -309,3 +309,19 @@ export const ProjectDetail = (props: IProjectDetail) => {
 		</div>
 	)
 }
+
+
+interface IProjectMisc {
+	removeAdminCookie: any
+	setMode: any
+}
+export const Misc = (props: IProjectMisc) => {
+	return (
+		<div className="Misc">
+			<button onClick={() => {
+				props.removeAdminCookie('adminLogin');
+				props.setMode(0);
+			}}>log out</button>
+		</div>
+	)
+}

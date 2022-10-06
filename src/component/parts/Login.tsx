@@ -17,6 +17,11 @@ interface Ilogin {
 	setIdentity: any
 	setReservationRecord: Dispatch<SetStateAction<reservationDataType>>
 	theDay: any
+	setMode: any
+	mode: any
+	setUserSelectedReservation: any
+	setUserSelectedProposal: any
+	setRUS: any
 }
 export const Login = (props: Ilogin) => {
 	const [ cookies, setCookie, removeCookie ] = useCookies(['loginInfoByBulse']);
@@ -59,36 +64,52 @@ export const Login = (props: Ilogin) => {
 	}
 
 	const handleOnClickLoginBtn = () => {
-		setCookie('loginInfoByBulse', {name: name, mobileNumber: mobileNumber}, {maxAge: 60*60*24*7});	//	7일간 유효한 로그인 쿠키
+		setCookie('loginInfoByBulse', {name: name, mobileNumber: mobileNumber}, {maxAge: 60*60*24*1});	//	24h 유효한 로그인 쿠키
 		props.setIdentity({name: name, mobileNumber: mobileNumber});
 	}
 
 	const handleOnClickLogoutBtn = () => {
-		removeCookie('loginInfoByBulse');
-		props.setIdentity(undefined);
+		if(window.confirm('로그아웃 하시겠습니까?')){
+			removeCookie('loginInfoByBulse');
+			props.setIdentity(undefined);
+			props.setMode(0);
+			props.setUserSelectedProposal(null);
+			props.setUserSelectedReservation(null);
+			props.setRUS(false);
+		}
 	}
 
 	let element = null;
 	if(props.identity === undefined){
 		element = 
-			<div>
+			<div className="Login">
+				<p>본인 확인</p>
 				<input name="name" placeholder='이름' onChange={handleOnChangeInput}></input>
 				<input name="mobileNumber" placeholder='전화번호' onChange={handleOnChangeInput}></input>
-				<button onClick={handleOnClickLoginBtn}>로그인</button>
+				<button onClick={handleOnClickLoginBtn}>확인</button>
+				<div>
+					<p>* 회원 가입이 필요하지 않습니다.</p>
+					<p>* 입력된 전화번호로 예약 관련 안내가 전달됩니다.</p>
+					<p>* 24시간 동안 유지됩니다.</p>
+				</div>
 			</div>
 	}else{
 		element = 
-			<div>
+			<div className="Logout">
 				<p>안녕하세요, {props.identity.name}님</p>
 				<button onClick={handleOnClickLogoutBtn}>로그아웃</button>
-				<span>귀icon</span>
-				<span>입icon</span>
+				<button onClick={() => {
+					props.mode === 1 ? props.setMode(0) : props.setMode(1);
+					props.setUserSelectedProposal(null);
+					props.setUserSelectedReservation(null);
+					props.setRUS(false);
+				}}>내 정보<br />{props.mode === 1 ? '닫기' : '열기'}</button>
 			</div>
 	}
 
 	return (
-		<div className="">
+		<>
 			{element}
-		</div>
+		</>
 	);
 }

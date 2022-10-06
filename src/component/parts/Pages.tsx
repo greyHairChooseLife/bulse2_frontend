@@ -6,58 +6,12 @@ const api = axios.create({
 	baseURL: `http://${process.env.REACT_APP_API_SERVER_HOST}:${process.env.REACT_APP_API_SERVER_PORT}`,
 })
 
-type sessionType = 1 | 2 | 3 | undefined;
-interface IgetIdentityProps {
-	setIdentity: any
-	session:sessionType 
-}
-export const GetIdentity = (props: IgetIdentityProps) => {
-	const defaultValue = {
-		name: '',
-		mobileNumber: '',
-	}
-
-	const [ name, setName ] = useState(defaultValue.name);
-	const [ mobileNumber, setMobileNumber ] = useState(defaultValue.mobileNumber);
-
-	//	세션이 바뀌면 form을 빈칸으로 초기화한다.
-	useEffect(() => {
-		setName(defaultValue.name);
-		setMobileNumber(defaultValue.mobileNumber);
-	}, [props.session])
-
-	const onChangeInput = (e: any) => {
-		switch(e.target.name){
-			case 'name':
-				setName(e.target.value);
-				break;
-			case 'mobileNumber':
-				setMobileNumber(e.target.value);
-				break;
-		}
-	}
-
-	return (
-		<div className="IdentityBox">
-			<form onSubmit={(e: any) => {
-				e.preventDefault();
-				props.setIdentity({name: name, mobileNumber: mobileNumber});
-				}}>
-				<label>name</label>
-				<input name="name" onChange={onChangeInput} value={name}></input>
-				<label>mobile number</label>
-				<input name="mobileNumber" onChange={onChangeInput} value={mobileNumber}></input>
-				<input type="submit"></input>
-			</form>
-		</div>
-	)
-}
-
 
 interface IcreateProject {
 	theDay: string
 	session: number | undefined
 	identity: {name: string, mobileNumber: string} | undefined
+	setPageMode: any
 }
 export const CreateProject = (props: IcreateProject) => {
 	const defaultValue = {
@@ -93,19 +47,18 @@ export const CreateProject = (props: IcreateProject) => {
 			session: props.session
 		}
 		api.post(`/project`, proposed);
+		props.setPageMode('readProject');
 	}
 
 	return (
-		<div className="ProposeBox">
+		<div className="CreateBox">
 			<form onSubmit={(e: any) => {
 				e.preventDefault();
 				onSubmitForm();
 				}}>
-				<label>제목</label>
-				<input name="subject" onChange={onChangeInput}></input>
-				<label>내용</label>
-				<textarea name="content" onChange={onChangeInput}></textarea>
-				<input type='submit' value="등록하기"></input>
+				<input placeholder="제목" name="subject" onChange={onChangeInput}></input>
+				<textarea placeholder="내용" name="content" onChange={onChangeInput}></textarea>
+				<button type='submit'>등록하기</button>
 			</form>
 		</div>
 	)
@@ -117,7 +70,6 @@ interface IreadProject {
 	session: number | undefined
 }
 export const ReadProject = (props: IreadProject) => {
-
 	type loadProjectType = {
 		subject: string,
 		content: string,
@@ -145,16 +97,18 @@ export const ReadProject = (props: IreadProject) => {
 	}, [props.theDay, props.session])
 
 	return (
-		<div>
+		<div className="ReadBox">
 			<div>
-				{loadProject?.name}
-				{loadProject?.mobileNumber}
+				<div>
+					{loadProject?.subject}
+				</div>
+				<div>
+					{loadProject?.content}
+				</div>
 			</div>
 			<div>
-				{loadProject?.subject}
-			</div>
-			<div>
-				{loadProject?.content}
+				<span>by {loadProject?.name}, </span>
+				<span>{loadProject?.mobileNumber}</span>
 			</div>
 		</div>
 	)

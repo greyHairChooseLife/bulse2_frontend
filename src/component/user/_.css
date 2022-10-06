@@ -1,66 +1,136 @@
 /*
- *  Info
+ * 		UserCalendar 
  */
-
-.Info {
-	grid-column: 1/2;
-	width: 100%;
-	height: 100%;
-}
 
 
 /*
- * 	Project 
+ * 		UserController
  */
 
-.Project {
-	grid-column: 2/3;
-	width: 100%;
-	height: 100%;
+.UserController {
+	position: absolute;
+	width: 25vw;
+	height: 30vh;
+	top: 65vh;
+	top: 40vh;
+	z-index: 100;
+	box-sizing: border-box;
 }
 
-.Project>div {
+.UserController button {
+	position: relative;
+	display: block;
+	width: 60%;
+	height: 20%;
+	margin-bottom: 15%;
+	font-size: 1.3rem;
+	border: none;
+	background-color: var(--s-color);
+	border-radius: 20px;
+	color: white;
+	cursor: pointer;
+}
+.UserController button:hover {
+	transform: scale(1.1);
+}
+
+.UserController p {
+	position: relative;
+	font-size: 1.1rem;
+	left: 2%;
+	color: var(--s-color);
+}
+
+.CancelActionBtn {
+	background-color: var(--b-color)!important;
+	border: solid 1px var(--s-color)!important;
+	color: var(--s-color)!important;
+}
+.CancelActionBtn:hover {
+	background-color: var(--m-color)!important;
+	border: none!important;
+}
+
+/*
+ * 	RelatedProject 
+ */
+
+.RelatedProject {
+	position: relative;
+	grid-column: 2/3;
+	width: 100%;
+	height: 80%;
+	top: 20%;
+}
+
+.RelatedProject>div {
 	width: 100%;
 	height: 8%;
 }
 
-.Project>div>button:nth-child(1) {
+.RelatedProject>div>button {
 	width: 50%;
 	height: 100%;
 	font-size: 1.7rem;
+	border: none;
+	background-color: var(--b-color);
+	cursor: pointer;
+	box-sizing: border-box;
 }
-.Project>div>button:nth-child(2) {
-	width: 50%;
-	height: 100%;
-	font-size: 1.7rem;
+.RelatedProject>div>button:hover {
+	background-color: var(--s-color);
+	border-bottom: solid 5px var(--s-color)!important;
+	color: white;
 }
 
-.Project table {
+.RelatedProject table {
 	margin-top: 3%;
 	width: 100%;
 	border-spacing: 0;
 	border-collapse: collapse;
+	font-size: 1.2rem;
 }
 
-.Project th {
+.RelatedProject tr {
+	cursor: pointer;
+}
+
+.RelatedProject th {
 	height: 80px;
 	font-size: 1.3rem;
 }
 
-.Project td {
+.RelatedProject td {
 	height: 50px;
-	border: solid 2px red;
 	text-align: center;
 }
 
-.Project tbody>tr:hover {
-	background-color: linen;
+.RelatedProject tbody>tr:hover {
+	background-color: var(--m-color);
 }
 
-.Project tbody td:nth-child(4) {
+.RelatedProject tbody td:nth-child(4) {
 	color: blue;
 }
 
+.RelatedProject input {
+	position: relative;
+	box-sizing: border-box;
+	width: 1.2vw;
+	height: 1.2vw;
+	left: 2vw;
+	top: 2vh;
+	margin-top: 2vh;
+	cursor: pointer;
+}
+
+.RelatedProject span {
+	position: relative;
+	font-size: 1.2rem;
+	left: 2.5vw;
+	top: 1.5vh;
+	cursor: pointer;
+}
 
 /*
  * misc 
@@ -70,7 +140,7 @@
 	color: red!important;
 }
 
-.Project>div:nth-child(3) {
+.RelatedProject>div:nth-child(3) {
 	position: absolute;
 	left: 25vw;
 	top: 30vh;
@@ -81,7 +151,7 @@
 	box-sizing: border-box;
 	z-index: 2;
 }
-.Project>div:nth-child(4) {
+.RelatedProject>div:nth-child(4) {
 	position: absolute;
 	left: 0;
 	top: 0;
@@ -93,18 +163,80 @@
 	cursor: pointer;
 }
 
-.Deposit>div:nth-child(4) {
-	margin-top: 3rem;
-	color: red;
-}
-.Deposit>button {
-	margin-top: 2rem;
-}
-.DepositBG:hover {
-	background-color: grey!important;
-}
-
 .BlueText {
 	color: blue;
 	font-size: 0.8rem;
+}
+
+.SelectedTable {
+	border-bottom: solid 5px var(--s-color)!important;
+}
+.NotSelectedTable {
+	color: gray;
+}
+
+.SelectedTR {
+	background-color: var(--m-color);
+}
+
+.CloseReadingRUS {
+	background-color: var(--m-color)!important;
+	color: var(--s-color)!important;
+}
+.CloseReadingRejection {
+	background-color: var(--m-color)!important;
+	color: var(--s-color)!important;
+}
+
+
+
+/*
+ *  	Read User Selected Box
+ */
+
+.ReadUserSelectedBox {
+	position: absolute;
+	width: 60vw;
+	height: 72vh;
+	right: 10vw;
+	top: 21vh;
+	box-sizing: border-box;
+	background-color: var(--m-color);
+	border-radius: 2vw;
+
+	padding: 0vh 5vw 3vh 12vw;
+	color: var(--s-color);
+	font-family: 'GangwonEdu_OTFBoldA';
+	overflow-y: auto;
+}
+.ReadUserSelectedBox::-webkit-scrollbar {
+	width: 10px;
+}
+.ReadUserSelectedBox::-webkit-scrollbar-thumb {
+	border-radius: 10px;
+	background-color: var(--s-color);
+}
+.ReadUserSelectedBox::-webkit-scrollbar-track {
+	background-color: white;
+	border-radius: 10px;
+}
+ 
+
+.ReadUserSelectedBox>div:nth-child(2) {
+	position: relative;
+	font-size: 1.3rem;
+	width: 50%;
+	left: 27%;
+	margin-top: 5vh;
+	text-align: center;
+}
+
+.ReadUserSelectedBox>div:nth-child(1)>div:nth-child(1) {
+	font-size: 2rem;
+	margin-top: 5vh;
+	margin-bottom: 5vh;
+}
+.ReadUserSelectedBox>div:nth-child(1)>div:nth-child(2) {
+	font-size: 1.5rem;
+	line-height: 1.5;
 }

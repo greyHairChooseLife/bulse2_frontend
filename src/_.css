@@ -1,5 +1,20 @@
+:root {
+	--b-color: ivory;
+	--b-color: #ece6cc;
+	--m-color: #ffb97b;
+	--s-color: #345F53;
+}
+
+@font-face {
+    font-family: 'GangwonEdu_OTFBoldA';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2201-2@1.0/GangwonEdu_OTFBoldA.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
 body {
 	margin: 0;
+	background-color: var(--b-color);
 }
 
 .root>button {
@@ -14,31 +29,48 @@ body {
 	margin-left: 260px;
 }
 
-.App>div:nth-child(1) {
-	position: absolute;
-	top: 5%;
-	left: 5%;
-}
-.App>div:nth-child(2) {
-	position: absolute;
-	top: calc(5% + 30vh + 10%);
-	left: 5%;
-	width: 25vw;
-	height: 45vh;
-}
-.App>div:nth-child(3) {
-	position: absolute;
-	top: 10%;
-	left: 40%;
+.App {
+	padding: 2vh 5vw;
 }
 
-.Login {
+.EmptyPage {
 	position: absolute;
-	width: 30vw;
-	height: 5vh;
-	border: solid 1px black;
-	top: 5vh;
-	right: 7vh;
+	width: 60vw;
+	height: 72vh;
+	right: 5vw;
+	top: 21vh;
+	box-sizing: border-box;
+}
+.EmptyPage p {
+	position: absolute;
+	width: 100%;
+	text-align: center;
+	font-size: 2rem;
+	top: 30%;
+}
+
+.Logo {
+	position: absolute;
+	width: 60vw;
+	height: 72vh;
+	right: 5vw;
+	top: 21vh;
+	box-sizing: border-box;
+}
+.Logo>div {
+	position: absolute;
+	top: 25vh;
+	left: 32vw;
+}
+.Logo p {
+	font-size: 1.2rem;
+}
+.Logo img {
+	position: absolute;
+	width: 25vw;
+	height: 25vw;
+	top: 10vh;
+	left: 5vw;
 }
 
 .Admin {
@@ -61,7 +93,7 @@ body {
 	box-sizing: border-box;
 	width: 100vw;
 	height: 100vh;
-	padding: 5vh 5vw 5vh 5vw;
+	padding: 2vh 5vw 5vh 5vw;
 	display: grid;
 	grid-template-columns: 1fr 3fr;
 	grid-template-rows: 1fr;
@@ -76,7 +108,6 @@ body {
 }
 
 .UserInfo>div {
-	border: solid 1px red;
 }
 
 /**

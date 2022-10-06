@@ -3,45 +3,94 @@
  */
  
 .CalendarBox {
-	width: 25vw;
-	height: 30vh;
-}
-
-.CalendarDays {
-	width: 100%;
-	height: 90%;
-	font-size: 1rem;
-	display: inline-grid;
-	grid-template-columns: repeat(7, 1fr);
-	grid-template-rows: repeat(6, 1fr);
-}
-
-.EachDay {
-	width: 85%;
-	height: 85%;
-	background-color: lightgray;
 	position: relative;
-	top: -25%;
-	left: 5%;
-	cursor: pointer;
-}
-.EachDay:hover {
-	background-color: lightgreen;
+	width: 25vw;
+	height: 60vh;
+	box-sizing: border-box;
 }
 
 .MonthName {
-	font-size: 2rem;
+	font-size: 2.5rem;
 	text-align: center;
-	margin-bottom: 3vh;
+	padding-bottom: 2vh;
+	border-bottom: solid 5px var(--s-color);
+	margin: 3vh 0 1vh 0;
 }
 
 .DayName {
-	font-size: 1rem;
+	font-size: 1.3rem;
 	display: grid;
 	grid-template-columns: repeat(7, 1fr);
 	text-align: center;
 	width: 100%;
 	height: 5vh;
+	margin-bottom: 3vh;
+}
+.DayName>span:nth-child(6) {
+	color: red;
+}
+.DayName>span:nth-child(7) {
+	color: red;
+}
+
+.CalendarDays {
+	text-align: center;
+	width: 25vw;
+	height: 40vh;
+	font-size: 1rem;
+	display: inline-grid;
+	grid-template-columns: repeat(7, 1fr);
+	grid-template-rows: repeat(6, 1fr);
+	box-sizing: border-box;
+}
+
+.EachDay {
+	width: 3vw;
+	height: 3vw;
+	position: relative;
+	top: -25%;
+	left: 5%;
+	cursor: pointer;
+	padding-top: 1vw;
+	box-sizing: border-box;
+	border-right: solid 1px var(--s-color);
+	border-top: solid 1px var(--s-color);
+	color: var(--b-color);
+}
+.EachDay:hover {
+	background-color: var(--s-color-hover, var(--s-color));
+	color: white;
+}
+.EmptyDay {
+	visibility: hidden;
+}
+.Today {
+	font-size: 0.8rem;
+	width: 3vw;
+	height: 3vw;
+	position: relative;
+	top: -25%;
+	left: 5%;
+	cursor: pointer;
+	padding-top: 0.8vw;
+	box-sizing: border-box;
+	border-top: solid 4px var(--s-color);
+	border-right: solid 4px var(--s-color);
+}
+.Today:hover {
+	background-color: var(--s-color);
+	color: white;
+}
+.ShowWord {
+	color: black;
+}
+.ShowWord:hover {
+	color: white;
+}
+
+.SelectedDate {
+	background-color: var(--s-color);
+	color: white;
 }
 
 
@@ -50,96 +99,315 @@
  */
 
 .ScheduleBox {
-	width: 100%;
-	height: 100%;
+	position: relative;
+	width: 25vw;
+	height: 25vh;
+	box-sizing: border-box;
+	color: var(--s-color);
+	top: -2vh;
 }
 
 .ScheduleBox>span {
-	position: absolute;
-	z-index: 100;
+	position: relative;
+	margin-left: 3%;
 }
 
+.ScheduleBox>div:nth-child(1) {
+	margin-top: 0!important;
+}
 .ScheduleBox>div {
-	width: 100%;
-	height: 20%;
-	background-color: limegreen;
-	margin-bottom: 5vh;
+	position: relative;
+	margin-top: 7%;
+	margin-bottom: 1%;
+	width: 90%;
+	height: 25%;
+	box-sizing: border-box;
+}
+
+.ScheduleBox>div>span {
+	position: absolute;
+	border: none;
+	background-color: var(--s-color);
+	width: 1.5vw;
+	height: 1.5vw;
+	border-radius: 0.7vw;
+	left: -2.3vw;
+	top: 27%;
 }
 
 .ScheduleBox>div>div {
-	width: 100%;
+	position: absolute;
+	width: 70%;
 	height: 100%;
 	display: inline-block;
+	border-radius: 20px;
+}
+.ScheduleBox>div>div:nth-child(1) {
+	cursor: pointer;
+	z-index: 3;
+}
+.ScheduleBox>div>div:nth-child(1):active {
+	transform: scale(0.98);
 }
 
-.ScheduleBox div>div:nth-child(2) {
-	height: 20%;
+.ScheduleBox>div>div:nth-child(2) {
+	height: 100%;
 	position: absolute;
 	box-sizing: border-box;
-	background-color: lightsalmon;
-	margin-left: 1vw;
+	background-color: var(--m-color);
+	margin-left: 50%;
+	z-index: 2;
+}
+.ScheduleBox>div>div:nth-child(2)>button {
+	background-color: white;
+	border: none;
+	border-radius: 13px;
+	position: relative;
+	width: 30%;
+	height: 55%;
+	float: right;
+	top: 22.5%;
+	margin-right: 5%;
+	cursor: pointer;
+}
+.ScheduleBox>div>div:nth-child(2)>button:hover {
+	transform: scale(1.1);
+}
+.ScheduleBox>div>div:nth-child(2)>button:active {
+	transform: scale(1);
 }
 
 .ScheduleBox>div>div>p {
 	position: absolute;
 	margin: 0;
-	margin-top: 3vh;
+	margin-top: 2vh;
 	width: 100%;
 	text-align: center;
 }
 
+.CreatingSC {
+	border: solid 1px var(--s-color);
+}
+.PendingSC {
+	background-color: var(--m-color);
+}
+.RecruitingSC {
+	background-color: var(--m-color);
+}
+.ConfirmedSC {
+	background-color: var(--m-color);
+}
+
+
+
 /*
- *  Identity Component
+ *  	CreateBox
  */
 
-.IdentityBox input {
+.CreateBox {
+	position: absolute;
+	width: 60vw;
+	height: 72vh;
+	right: 5vw;
+	top: 21vh;
+	box-sizing: border-box;
+}
+
+.CreateBox input {
+	position: relative;
 	display: block;
-	font-size: 1.5rem;
-	margin-bottom: 2vh;
-}
-
-/*
- *  Propose Component
- */
-
-.ProposeBox {
-	width: 55vw;
-	height: 80vh;
-}
-
-.ProposeBox label {
-	display: inline-block;
-	margin-bottom: 15px;
-	margin-left: 1.5rem;
-	font-size: 1.5rem;
-	color: grey;
-}
-
-.ProposeBox>form>input:nth-child(2) {
+	box-sizing: border-box;
 	margin-bottom: 5vh;
 	font-size: 1.5rem;
 	padding-left: 1.5rem;
-	width: 100%;
-	height: 5vh;
+	width: 90%;
+	height: 6vh;
+	left: 5%;
+	outline: none;
+	border: none;
+	border-radius: 20px;
 }
 
-.ProposeBox>form>input:nth-child(5) {
+.CreateBox textarea {
+	position: relative;
+	display: block;
+	left: 5%;
+	width: 90%;
+	height: 50vh;
+	box-sizing: border-box;
+	font-size: 1.5rem;
+	padding: 1rem;
+	outline: none;
+	border: none;
+	border-radius: 20px;
+}
+
+.CreateBox button {
+	position: absolute;
 	margin-top: 5vh;
 	font-size: 1.5rem;
 	width: 30%;
 	height: 5vh;
+	bottom: 0;
+	cursor: pointer;
+	right: 10%;
+	background-color: var(--s-color);
+	color: white;
+	border: none;
+	border-radius: 20px;
+}
+
+/*
+ *  	ReadBox 
+ */
+
+.ReadBox {
+	position: absolute;
+	width: 60vw;
+	height: 72vh;
+	right: 5vw;
+	top: 21vh;
+	box-sizing: border-box;
+
+	padding: 0vh 5vw 3vh 12vw;
+	color: var(--s-color);
+	font-family: 'GangwonEdu_OTFBoldA';
+	overflow-y: auto;
+}
+.ReadBox::-webkit-scrollbar {
+	width: 10px;
+}
+.ReadBox::-webkit-scrollbar-thumb {
+	border-radius: 10px;
+	background-color: var(--s-color);
+}
+.ReadBox::-webkit-scrollbar-track {
+	background-color: white;
+	border-radius: 10px;
+}
+ 
+
+.ReadBox>div:nth-child(2) {
+	position: relative;
+	font-size: 1.3rem;
+	width: 50%;
+	left: 27%;
+	margin-top: 5vh;
+	text-align: center;
+}
+
+.ReadBox>div:nth-child(1)>div:nth-child(1) {
+	font-size: 2rem;
+	margin-top: 5vh;
+	margin-bottom: 5vh;
+}
+.ReadBox>div:nth-child(1)>div:nth-child(2) {
+	font-size: 1.5rem;
+	line-height: 1.5;
+}
+
+
+
+/*
+ *  	Login Component
+ */
+
+
+.Login {
+	position: absolute;
+	height: 70vh;
+	width: 50vw;
+	top: 28vh;
+	right: 10vw;
+	box-sizing: border-box;
+	color: var(--s-color);
+}
+
+.Login>p{
+	position: absolute;
+	font-size: 2rem;
+	top: -12vh;
+	left: 10%;
+	padding: 0 2vw 1vh 0;
+	border-bottom: solid 2px var(--s-color);
+}
+
+.Login input {
+	display: block;
+	position: relative;
+	top: 3vh;
+	height: 7vh;
+	width: 40%;
+	left: 10%;
+	margin: 2vh 0;
+	font-size: 1.8rem;
+	text-align: center;
+	border: none;
+	outline: none;
+	padding-left: 1vw;
+	box-sizing: border-box;
+}
+
+.Login button {
+	position: absolute;
+	top: 5vh;
+	left: 65%;
+	width: 12vw;
+	height: 16vh;
+	border: none;
+	border-radius: 15px;
+	background-color: var(--s-color);
+	color: white;
+	font-size: 3rem;
+}
+
+.Login>div>p {
+	position: relative;
+	top: 10vh;
+	left: 6vw;
+	font-size: 1.5rem;
+}
+
+.Logout {
+	position: absolute;
+	height: 7vh;
+	width: 25vw;
+	padding-left: 1vw;
+	top: 5vh;
+	right: 10vw;
+	box-sizing: border-box;
+	color: var(--s-color);
+	border-bottom: solid 5px var(--s-color);
+}
+
+.Logout>p {
+	font-size: 1.3rem;
+	display: inline-block;
+}
+
+.Logout>button {
+	width: 5vw;
+	height: 3vw;
+	border-radius: 1.5vw;
+	font-size: 1rem;
+	float: right;
+	margin-left: 0.5vw;
+	color: var(--s-color);
 	cursor: pointer;
 }
-
-.ProposeBox input {
-	display: block;
-	box-sizing: border-box;
+.Logout>button:nth-child(3) {
+	background-color: var(--s-color);
+	border: none;
+	color: white;
 }
-.ProposeBox textarea {
-	display: block;
-	width: 100%;
-	height: 50vh;
-	box-sizing: border-box;
+.Logout>button:nth-child(3):hover {
+	transform: scale(1.1);
 }
-
-
+.Logout>button:nth-child(2) {
+	border: none;
+	background-color: var(--b-color);
+}
+.Logout>button:nth-child(2):hover {
+	background-color: var(--s-color);
+	color: white;
+}

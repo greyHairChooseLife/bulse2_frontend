@@ -15,10 +15,14 @@ type identityType = {
 interface IscheduleProps {
 	theDay: string
 	setSession: any
+	session: any
+	pageMode: any
 	setPageMode: any
 	identity: identityType | undefined
 	reservationRecord: any
 	setReservationRecord: Dispatch<SetStateAction<reservationDataType>>
+	cancelReservationAway: boolean
+	setCRA: any
 }
 export const Schedule = (props: IscheduleProps) => {
 	const [ cookies, setCookie, removeCookie ] = useCookies(['checkOverlapLike']);
@@ -45,6 +49,8 @@ export const Schedule = (props: IscheduleProps) => {
 		}
 		getProject();
 	}, [props.theDay]);
+	//}, [props.theDay, props.pageMode]);
+	//	props.pageMode는 너무 많은 re-render를 일으킨다. 뭔가 다른 적절한 것을 찾아보자.
 
 	//	schedule Component 관련 내용
 	//	pending : waiting for approve by administrator
@@ -62,18 +68,21 @@ export const Schedule = (props: IscheduleProps) => {
 	let events = {
 		newProject: {
 			onClick: (sessionNumber: number) => {
-				if(previousState[0] !== 'readProject' && previousState[0] !== 'logo'){	//	logo 또는 readProject 모드라면 confirm() 필요 없으니 바로 else로 실행시킨다.
-					if(sessionNumber !== previousState[1]){		//	세션이 바뀌지 않는 경우는 방금 활성화된 button을 눌렀다는 소리다. 그때는 이벤트가 일어나서는 안되지
-						if(window.confirm('작성 중이던 내용이 사라집니다.')){
-							props.setPageMode('createProject');
-							props.setSession(sessionNumber);
-							setPreviousState(['createProject', sessionNumber]);
+				if(props.identity === undefined) alert('먼저 본인 확인 해 주세요.');
+				else{
+					if(previousState[0] !== 'readProject' && previousState[0] !== 'logo'){	//	logo 또는 readProject 모드라면 confirm() 필요 없으니 바로 else로 실행시킨다.
+						if(sessionNumber !== previousState[1]){		//	세션이 바뀌지 않는 경우는 방금 활성화된 button을 눌렀다는 소리다. 그때는 이벤트가 일어나서는 안되지
+							if(window.confirm('작성 중이던 내용이 사라집니다.')){
+								props.setPageMode('createProject');
+								props.setSession(sessionNumber);
+								setPreviousState(['createProject', sessionNumber]);
+							}
 						}
+					}else{
+						props.setPageMode('createProject');
+						props.setSession(sessionNumber);
+						setPreviousState(['createProject', sessionNumber]);
 					}
-				}else{
-					props.setPageMode('createProject');
-					props.setSession(sessionNumber);
-					setPreviousState(['createProject', sessionNumber]);
 				}
 			}
 		},
@@ -193,14 +202,15 @@ export const Schedule = (props: IscheduleProps) => {
 		},
 	};
 
+		//><p>새로운 제안하기</p></div>;
 	const makeCreatingComponent = (sessionNumber: number) => {
-		return <div
+		return <div className="CreatingSC"
 			onClick={() => events.newProject.onClick(sessionNumber)}
-		><p>새로운 제안하기</p></div>;
+		><p>빈 자리</p></div>;
 	}
 
 	const makePendingComponent = (sessionNumber: number, previousState: any) => {
-		return <div
+		return <div className="PendingSC"
 			onClick={() => events.pending.onClick(sessionNumber, previousState)}
 			onMouseEnter={() => events.pending.onMouseEnter(sessionNumber, previousState)}
 			onMouseLeave={() => events.pending.onMouseLeave(sessionNumber, previousState)}
@@ -208,7 +218,7 @@ export const Schedule = (props: IscheduleProps) => {
 	}
 
 	const makeRecruitingComponent = (sessionNumber: number, previousState: any) => {
-		return <div
+		return <div className="RecruitingSC"
 			onClick={() => events.recruiting.onClick(sessionNumber, previousState)}
 			onMouseEnter={() => events.recruiting.onMouseEnter(sessionNumber, previousState)}
 			onMouseLeave={() => events.recruiting.onMouseLeave(sessionNumber, previousState)}
@@ -216,7 +226,7 @@ export const Schedule = (props: IscheduleProps) => {
 	}
 
 	const makeConfirmedComponent = (sessionNumber: number, previousState: any) => {
-		return <div
+		return <div className="ConfirmedSC"
 			onClick={() => events.confirmed.onClick(sessionNumber, previousState)}
 			onMouseEnter={() => events.confirmed.onMouseEnter(sessionNumber, previousState)}
 			onMouseLeave={() => events.confirmed.onMouseLeave(sessionNumber, previousState)}
@@ -259,11 +269,12 @@ export const Schedule = (props: IscheduleProps) => {
 				})
 			)
 		}
-		if(reserving){
+		if(reserving || props.cancelReservationAway){
 			getReservationRecord();
 			setReserving(false);
+			props.setCRA(false);
 		}
-	}, [reserving])
+	}, [reserving, props.cancelReservationAway])
 
 	const addOnEvent = {
 		likeOnPending: async (sessionNumber: number) => {
@@ -335,8 +346,8 @@ export const Schedule = (props: IscheduleProps) => {
 	}
 
 	const addOn = {
-		pending: (sessionNumber: number) => <div><button onClick={() => addOnEvent.likeOnPending(sessionNumber)}>like</button></div>,
-		recruiting: (sessionNumber: number) => <div><button onClick={() => addOnEvent.reserveOnRecruiting(sessionNumber)}>예약</button><button onClick={() => addOnEvent.cancelOnRecruiting(sessionNumber)}>예약 취소</button></div>,
+		pending: (sessionNumber: number) => <div><button onClick={() => addOnEvent.likeOnPending(sessionNumber)}>좋아요</button></div>,
+		recruiting: (sessionNumber: number) => <div><button onClick={() => addOnEvent.cancelOnRecruiting(sessionNumber)}>예약 취소</button><button onClick={() => addOnEvent.reserveOnRecruiting(sessionNumber)}>예약</button></div>,
 		confirmed: (sessionNumber: number) => <div><button onClick={() => addOnEvent.cancelOnConfirmed(sessionNumber)}>예약 취소</button></div>,
 	}
 
@@ -371,12 +382,12 @@ export const Schedule = (props: IscheduleProps) => {
 
 	return (
 		<div className="ScheduleBox">
+			<div>{schedule1Component}{addOnSwitch[0] ? addOn1 : null}{props.session === 1 && <span></span>}</div>
 			<span>13:00 ~ 15:00</span>
-			<div>{schedule1Component}{addOnSwitch[0] ? addOn1 : null}</div>
+			<div>{schedule2Component}{addOnSwitch[1] ? addOn2 : null}{props.session === 2 && <span></span>}</div>
 			<span>16:00 ~ 18:00</span>
-			<div>{schedule2Component}{addOnSwitch[1] ? addOn2 : null}</div>
+			<div>{schedule3Component}{addOnSwitch[2] ? addOn3 : null}{props.session === 3 && <span></span>}</div>
 			<span>19:00 ~ 21:00</span>
-			<div>{schedule3Component}{addOnSwitch[2] ? addOn3 : null}</div>
 		</div>
 	);
 }

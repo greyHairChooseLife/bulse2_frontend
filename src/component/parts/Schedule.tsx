@@ -16,7 +16,7 @@ interface IscheduleProps {
 	theDay: string
 	setSession: any
 	session: any
-	pageMode: any
+	updateSchedule: boolean
 	setPageMode: any
 	identity: identityType | undefined
 	reservationRecord: any
@@ -48,7 +48,7 @@ export const Schedule = (props: IscheduleProps) => {
 			result.data.forEach((ele: any) => setters[ele.session-1](ele.status));
 		}
 		getProject();
-	}, [props.theDay]);
+	}, [props.theDay, props.updateSchedule]);
 	//}, [props.theDay, props.pageMode]);
 	//	props.pageMode는 너무 많은 re-render를 일으킨다. 뭔가 다른 적절한 것을 찾아보자.
 
@@ -68,23 +68,45 @@ export const Schedule = (props: IscheduleProps) => {
 	let events = {
 		newProject: {
 			onClick: (sessionNumber: number) => {
-				if(props.identity === undefined) alert('먼저 본인 확인 해 주세요.');
-				else{
-					if(previousState[0] !== 'readProject' && previousState[0] !== 'logo'){	//	logo 또는 readProject 모드라면 confirm() 필요 없으니 바로 else로 실행시킨다.
-						if(sessionNumber !== previousState[1]){		//	세션이 바뀌지 않는 경우는 방금 활성화된 button을 눌렀다는 소리다. 그때는 이벤트가 일어나서는 안되지
-							if(window.confirm('작성 중이던 내용이 사라집니다.')){
-								props.setPageMode('createProject');
-								props.setSession(sessionNumber);
-								setPreviousState(['createProject', sessionNumber]);
-							}
+				if(previousState[0] !== 'readProject' && previousState[0] !== 'logo'){	//	logo 또는 readProject 모드라면 confirm() 필요 없으니 바로 else로 실행시킨다.
+					if(sessionNumber !== previousState[1]){		//	세션이 바뀌지 않는 경우는 방금 활성화된 button을 눌렀다는 소리다. 그때는 이벤트가 일어나서는 안되지
+						if(window.confirm('작성 중이던 내용이 사라집니다.')){
+							props.setPageMode('createProject');
+							props.setSession(sessionNumber);
+							setPreviousState(['createProject', sessionNumber]);
 						}
-					}else{
-						props.setPageMode('createProject');
-						props.setSession(sessionNumber);
-						setPreviousState(['createProject', sessionNumber]);
 					}
+				}else{
+					props.setPageMode('createProject');
+					props.setSession(sessionNumber);
+					setPreviousState(['createProject', sessionNumber]);
 				}
-			}
+				const temp = [false, false, false];
+				temp[sessionNumber-1] = true;
+				setIsAddOnFixed(temp);
+			},
+			onMouseEnter: (sessionNumber: number, previousState: any) => {
+				if(previousState[0] === 'logo' || previousState[0] === 'readProject'){
+					props.setPageMode('readProject');
+					props.setSession(sessionNumber);
+				}
+				const temp = [false, false, false];
+				temp[sessionNumber-1] = true;
+				setAddOnSwitch(temp);
+			},
+			onMouseLeave: (sessionNumber: number, previousState: any) => {
+				//	create, update, delete 도중이었다면 그냥 사라져서는 안된다. 한번 물어봐야지.
+				if(previousState[0] === 'readProject' || previousState[0] === 'logo'){
+					props.setPageMode(previousState[0]);
+					props.setSession(previousState[1]);
+				}
+				//	mouseLeave이벤트가 발생하는 요소와 addOn이 fix된 세션넘버가 다를 때에만 동작하도록 한다.
+				if(isAddOnFixed.findIndex((ele) => ele === true) !== sessionNumber-1){
+					const temp = [false, false, false];
+					temp[isAddOnFixed.findIndex((ele) => ele === true)] = true;
+					setAddOnSwitch(temp);
+				}
+			},
 		},
 		pending: {
 			onClick: (sessionNumber: number, previousState: any) => {
@@ -206,6 +228,8 @@ export const Schedule = (props: IscheduleProps) => {
 	const makeCreatingComponent = (sessionNumber: number) => {
 		return <div className="CreatingSC"
 			onClick={() => events.newProject.onClick(sessionNumber)}
+			onMouseEnter={() => events.newProject.onMouseEnter(sessionNumber, previousState)}
+			onMouseLeave={() => events.newProject.onMouseLeave(sessionNumber, previousState)}
 		><p>빈 자리</p></div>;
 	}
 

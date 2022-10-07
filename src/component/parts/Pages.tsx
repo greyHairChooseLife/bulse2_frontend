@@ -12,6 +12,8 @@ interface IcreateProject {
 	session: number | undefined
 	identity: {name: string, mobileNumber: string} | undefined
 	setPageMode: any
+	setUpdateSchedule: any
+	updateSchedule: boolean
 }
 export const CreateProject = (props: IcreateProject) => {
 	const defaultValue = {
@@ -48,6 +50,7 @@ export const CreateProject = (props: IcreateProject) => {
 		}
 		api.post(`/project`, proposed);
 		props.setPageMode('readProject');
+		props.setUpdateSchedule(!props.updateSchedule);
 	}
 
 	return (

@@ -56,6 +56,8 @@ function App() {
 	const [ selectedProject, setSelectedProject ] = useState<projectType | null>(null);
 	const [ showDetail, setShowDetail ] = useState<boolean>(false);
 
+	const [ updateSchedule, setUpdateSchedule ] = useState<boolean>(true);	//	create프로젝트 완료했을 때 schedule component를  re-render 해 주기 위해서
+
 	const [ adminIdentified, setAdminIdentified ] = useState<boolean>(false);
 	const [ adminIdentity, setAdminIdentity ] = useState<{name: string, mobileNumber: string, identification: string}>({name: '', mobileNumber: '', identification: ''});
 	const [ adminCookies, setAdminCookie, removeAdminCookie ] = useCookies(['adminLogin']);
@@ -99,7 +101,7 @@ function App() {
 			page = <ReadProject theDay={theDay} session={session} />
 			break;
 		case 'createProject':
-			page = <CreateProject theDay={theDay} session={session} identity={identity} setPageMode={setPageMode} />;
+			page = <CreateProject theDay={theDay} session={session} identity={identity} setPageMode={setPageMode} setUpdateSchedule={setUpdateSchedule} updateSchedule={updateSchedule} />;
 			break;
 		case 'updateProject':
 			page = <UpdateProject />
@@ -112,7 +114,7 @@ function App() {
 	const modeApp = 
 		<div className="App">
 			<Calendar setTheDay={setTheDay} setSession={setSession} setPageMode={setPageMode} pageMode={pageMode} />
-			<Schedule theDay={theDay} setSession={setSession} session={session} pageMode={pageMode} setPageMode={setPageMode} identity={identity} reservationRecord={reservationRecord} setReservationRecord={setReservationRecord} cancelReservationAway={cancelReservationAway} setCRA={setCRA} />
+			<Schedule theDay={theDay} setSession={setSession} session={session} updateSchedule={updateSchedule} setPageMode={setPageMode} identity={identity} reservationRecord={reservationRecord} setReservationRecord={setReservationRecord} cancelReservationAway={cancelReservationAway} setCRA={setCRA} />
 			{identity !== undefined && page}
 		</div>
 	const modeUserInfo = 

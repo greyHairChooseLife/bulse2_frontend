@@ -301,11 +301,12 @@
 	margin-top: 5vh;
 	margin-bottom: 5vh;
 }
-.ReadBox>div:nth-child(1)>div:nth-child(2) {
+
+.ReadBox pre {
 	font-size: 1.5rem;
 	line-height: 1.5;
+	font-family: 'GangwonEdu_OTFBoldA';
 }
-
 
 
 /*

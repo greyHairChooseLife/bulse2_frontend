@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Login } from './component/parts/Login';
 import { Calendar } from './component/parts/Calendar';
 import { Schedule } from './component/parts/Schedule';
-import { CreateProject, ReadProject, UpdateProject, DeleteProject } from './component/parts/Pages';
-import { ProjectBoard, ProjectController, ProjectClipboard, ProjectDetail, Misc } from './component/admin/Admin';
+import { CreateProject, ReadProject } from './component/parts/Pages';
+import { ProjectBoard, ProjectController, ProjectClipboard, ProjectDetail, SelectedProjectSummary } from './component/admin/Admin';
 import { UserController, RelatedProject, UserInfoModal } from './component/user/UserInfo';
 import './_.css';
 import axios from 'axios';
@@ -54,9 +54,11 @@ function App() {
 	const [ identity, setIdentity ] = useState<identityType | undefined>(undefined);
 	const [ reservationRecord, setReservationRecord ] = useState<reservationDataType>([]);	//	중복 예약 막기 위해서 로그인한 유저의 모든 예약 내용을 업데이트한다.(그 달의)
 	const [ selectedProject, setSelectedProject ] = useState<projectType | null>(null);
-	const [ showDetail, setShowDetail ] = useState<boolean>(false);
+	const [ showDetail, setShowDetail ] = useState<[boolean, string]>([false, '']);
+	const [ selectedBP, setSelectedBP ] = useState<projectType | null>(null);
 
 	const [ updateSchedule, setUpdateSchedule ] = useState<boolean>(true);	//	create프로젝트 완료했을 때 schedule component를  re-render 해 주기 위해서
+	const [ updateAdmin, setUpdateAdmin ] = useState<boolean>(true);	//	admin component를  re-render 해 주기 위해서
 
 	const [ adminIdentified, setAdminIdentified ] = useState<boolean>(false);
 	const [ adminIdentity, setAdminIdentity ] = useState<{name: string, mobileNumber: string, identification: string}>({name: '', mobileNumber: '', identification: ''});
@@ -70,7 +72,7 @@ function App() {
 	const [ cancelReservationAway, setCRA] = useState<boolean>(false);	//	userInfo화면에서 예약 취소하면 Schedul component의 state를 업데이트 해야 한다.
 
 	useEffect(() => {
-		setShowDetail(false);
+		setShowDetail([false, '']);
 	}, [selectedProject])
 
 	useEffect(() => {setPageMode('logo')}, [theDay])
@@ -94,7 +96,8 @@ function App() {
 		case 'logo':
 			page = 
 				<div className="EmptyPage">
-					<p>" 일정을 선택하세요. "</p>
+					<p>" <span className="UnderLine">날짜</span>를 선택하고 <span className="UnderLine">일정</span>을 둘러보세요.</p>
+					<p><span className="UnderLine">빈 자리</span>에는 <span className="UnderLine">새로운 일정</span>을 제안 할 수 있습니다. "</p>
 				</div>;
 			break;
 		case 'readProject':
@@ -102,12 +105,6 @@ function App() {
 			break;
 		case 'createProject':
 			page = <CreateProject theDay={theDay} session={session} identity={identity} setPageMode={setPageMode} setUpdateSchedule={setUpdateSchedule} updateSchedule={updateSchedule} />;
-			break;
-		case 'updateProject':
-			page = <UpdateProject />
-			break;
-		case 'deleteProject':
-			page = <DeleteProject />
 			break;
 	}
 
@@ -126,16 +123,12 @@ function App() {
 		</div>
 	const modeAdmin =
 		<div className="Admin">
-			<div>
-				{selectedProject !== null && <div>언제 : {selectedProject?.project.date} ({selectedProject?.project.session})</div>}
-				{selectedProject !== null && <div>누가 : {selectedProject?.project.name}, {selectedProject?.project.mobileNumber}</div>}
-				{selectedProject !== null && <div>제목 : {selectedProject?.project.subject}</div>}
-			</div>
-			<ProjectBoard theDay={theDay} setSelectedProject={setSelectedProject} selectedProject={selectedProject} />
+			<SelectedProjectSummary selectedProject={selectedProject} />
+			<ProjectBoard theDay={theDay} setSelectedProject={setSelectedProject} selectedProject={selectedProject} updateAdmin={updateAdmin} setSelectedBP={setSelectedBP} />
 			<ProjectController selectedProject={selectedProject} setSelectedProject={setSelectedProject} setShowDetail={setShowDetail} showDetail={showDetail} />
-			<ProjectClipboard selectedProject={selectedProject} />
-			{showDetail && <ProjectDetail selectedProject={selectedProject} />}
-			<Misc removeAdminCookie={removeAdminCookie} setMode={setMode} />
+			<ProjectClipboard selectedProject={selectedProject} updateAdmin={updateAdmin} setUpdateAdmin={setUpdateAdmin} />
+			{showDetail[0] && (showDetail[1] !== 'broken' ? <ProjectDetail showWhat='projectDetail' selectedProject={selectedProject} selectedBP={selectedBP} /> 
+													: <ProjectDetail showWhat='brokenComment' selectedProject={selectedProject} selectedBP={selectedBP} />)}
 		</div>
 
 	//	check adminLoginCookie
@@ -155,22 +148,41 @@ function App() {
 		if(result.data){
 			setAdminIdentified(result.data);
 			setAdminCookie('adminLogin', adminIdentity, {maxAge: 60*60*6});		//	6 hours
+		}else{
+			setLoginFailMsg('틀렸습니다. 다시 한번 확인 해 주세요.');
+			setTimeout(() => {setLoginFailMsg(null)}, 1500)
 		}
 	}
+	const [ loginFailMsg, setLoginFailMsg ] = useState<string | null>(null);
 	const ingressAdmin: JSX.Element =
 		<div className="IngressAdmin">
 			<input onChange={onChangeAdminLoginInput} name="name" placeholder="이름" />
 			<input onChange={onChangeAdminLoginInput} name="mobileNumber" placeholder="전화번호" />
 			<input onChange={onChangeAdminLoginInput} name="identification" placeholder="아이디" />
 			<button onClick={onClickAdminLoginBtn}>login</button>
+			<p>- 6시간 동안 유지됩니다.<br />- 문의 010_9639_7703</p>
+			{loginFailMsg !== null && <span>{loginFailMsg}</span>}
 		</div>
 
 	const modeGroup = [modeApp, modeUserInfo, adminIdentified !== false ? modeAdmin : ingressAdmin];
 
 	return (
 		<div className="root">
-			<button onClick={()=>{setMode(2)}}>Admin</button>
-			<Login identity={identity} setIdentity={setIdentity} setReservationRecord={setReservationRecord} theDay={theDay} setMode={setMode} mode={mode} setUserSelectedReservation={setUserSelectedReservation} setUserSelectedProposal={setUserSelectedProposal} setRUS={setRUS} />
+			{mode !== 1 && <img className="AdminBtn" onClick={()=>{
+				if(mode !== 2) setMode(2)
+				else{
+					if(adminIdentified){
+						if(window.confirm('로그아웃 하시겠습니까?')){
+							removeAdminCookie('adminLogin');
+							setMode(0);
+						}
+					}else{
+						removeAdminCookie('adminLogin');
+						setMode(0);
+					}
+				}
+			}} src={mode !== 2 ? "image/admin.png" : "image/cancel.png"}/>}
+			{mode !== 2 && <Login identity={identity} setIdentity={setIdentity} setReservationRecord={setReservationRecord} theDay={theDay} setMode={setMode} mode={mode} setUserSelectedReservation={setUserSelectedReservation} setUserSelectedProposal={setUserSelectedProposal} setRUS={setRUS} />}
 			{modeGroup[mode]}
 		</div>
 	);

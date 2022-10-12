@@ -1,9 +1,4 @@
 /*
- * 		UserCalendar 
- */
-
-
-/*
  * 		UserController
  */
 
@@ -178,6 +173,16 @@
 .SelectedTR {
 	background-color: var(--m-color);
 }
+.BrokenProposalTR {
+	background-color: lightgrey;
+}
+.BrokenReservationTR {
+	background-color: lightgrey;
+	cursor: default!important;
+}
+.BrokenReservationTR:hover {
+	background-color: lightgrey!important;
+}
 
 .CloseReadingRUS {
 	background-color: var(--m-color)!important;
@@ -187,7 +192,6 @@
 	background-color: var(--m-color)!important;
 	color: var(--s-color)!important;
 }
-
 
 
 /*

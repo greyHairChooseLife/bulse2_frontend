@@ -53,7 +53,7 @@ export const UserController = (props: IuserController) => {
 		<>
 			{(props.readUserSelected[0] && props.readUserSelected[1] === 'content') ? <button className={props.readUserSelected[1] === 'content' ? 'CloseReadingRUS' : undefined} onClick={() => props.setRUS([false, undefined])}>닫기</button> : <button onClick={() => props.setRUS([true, 'content'])}>내용 보기</button>}
 			{props.userSelectedReservation?.R_checkPayment === null && askCheckPayment}
-			{props.userSelectedProposal?.status !== 'broken' && <button className="CancelActionBtn" onClick={onClickCancel}>{props.userSelectedProposal === null ? '예약 취소' : '일정 취소'}</button>}
+			{props.userSelectedProposal?.status !== 'broken' && !props.readUserSelected[0] && <button className="CancelActionBtn" onClick={onClickCancel}>{props.userSelectedProposal === null ? '예약 취소' : '일정 취소'}</button>}
 			{props.userSelectedProposal?.status === 'broken' && ((props.readUserSelected[0] && props.readUserSelected[1] === 'comment') ? 
 				<button className="CloseReadingRejection" onClick={() => props.setRUS([false, undefined])}>닫기</button>
 				: <button onClick={() => props.setRUS([true, 'comment'])}>반려 보기</button>)}
@@ -100,7 +100,7 @@ export const RelatedProject = (props: IrelatedProject) => {
 	}, [props.userSelectedReservation, props.userSelectedProposal])
 
 	const onClickReservationTR = (e: any, idx: number) => {
-		props.setUserSelectedReservation(e);
+		if(e.P_status !== 'broken') props.setUserSelectedReservation(e);
 	}
 	const onClickProposalTR = (e: any, idx: number) => {
 		props.setUserSelectedProposal(e);
@@ -122,7 +122,8 @@ export const RelatedProject = (props: IrelatedProject) => {
 						</tr>
 				tableBody = userRecord.reservation.map((e: any, idx: number, arr: any) => {
 					const tdPayment = e.R_payment === 0 ? 'Paid' : '';
-					const selectedClassName = props.userSelectedReservation !== null && e.R_id === props.userSelectedReservation.R_id ? 'SelectedTR' : undefined;
+					const selectedClassName = (props.userSelectedReservation !== null && e.R_id === props.userSelectedReservation.R_id) ? 'SelectedTR' 
+						: (e.P_status === 'broken') ? 'BrokenReservationTR' : undefined;
 					if(!brokenHide){
 						if(e.P_status === 'broken') return;
 					}
@@ -149,7 +150,8 @@ export const RelatedProject = (props: IrelatedProject) => {
 							<th>조회수</th>
 						</tr>
 				tableBody = userRecord.proposal.map((e: any, idx: number, arr: any) => {
-					const selectedClassName = props.userSelectedProposal !== null && e.id === props.userSelectedProposal.id ? 'SelectedTR' : undefined;
+					const selectedClassName = (props.userSelectedProposal !== null && e.id === props.userSelectedProposal.id) ? 'SelectedTR' 
+						: (e.status === 'broken') ? 'BrokenProposalTR' : undefined;
 					if(!brokenHide){
 						if(e.status === 'broken') return;
 					}

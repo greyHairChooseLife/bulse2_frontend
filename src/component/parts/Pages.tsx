@@ -28,6 +28,13 @@ export const CreateProject = (props: IcreateProject) => {
 	const [ subject, setSubject ] = useState(defaultValue.subject);
 	const [ content, setContent ] = useState(defaultValue.content);
 
+	//	초기화
+	useEffect(() => {
+		setSubject(defaultValue.subject);
+		setContent(defaultValue.content);
+	}, [props.session]);
+
+
 	const onChangeInput = (e: any) => {
 		switch(e.target.name){
 			case 'subject':
@@ -44,7 +51,7 @@ export const CreateProject = (props: IcreateProject) => {
 		const proposed = {
 			identity: props.identity,
 			subject: subject,
-			content: content,
+			content: content.replace(/(?:\r\n|\r|\n)/g,'<br/>'),	//	줄바꿈 처리
 			theDay: theDay,
 			session: props.session
 		}
@@ -59,8 +66,8 @@ export const CreateProject = (props: IcreateProject) => {
 				e.preventDefault();
 				onSubmitForm();
 				}}>
-				<input placeholder="제목" name="subject" onChange={onChangeInput}></input>
-				<textarea placeholder="내용" name="content" onChange={onChangeInput}></textarea>
+				<input placeholder="제목" name="subject" onChange={onChangeInput} value={subject} />
+				<textarea placeholder="내용" name="content" onChange={onChangeInput} value={content} />
 				<button type='submit'>등록하기</button>
 			</form>
 		</div>
@@ -105,9 +112,9 @@ export const ReadProject = (props: IreadProject) => {
 				<div>
 					{loadProject?.subject}
 				</div>
-				<div>
-					{loadProject?.content}
-				</div>
+				<pre>
+					{loadProject?.content.replace(/<br\s*\/?>/img,"\n")}
+				</pre>
 			</div>
 			<div>
 				<span>by {loadProject?.name}, </span>
@@ -117,18 +124,3 @@ export const ReadProject = (props: IreadProject) => {
 	)
 }
 
-export const UpdateProject = () => {
-	return (
-		<div>
-			update project component
-		</div>
-	)
-}
-
-export const DeleteProject = () => {
-	return (
-		<div>
-			delete project component
-		</div>
-	)
-}

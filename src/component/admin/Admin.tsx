@@ -28,32 +28,49 @@ type projectType = {
 		mobileNumber: string
 	}[]
 }
+
 interface IProjectBoard {
 	theDay: string
 	setSelectedProject: Dispatch<SetStateAction<projectType | null>>
 	selectedProject: projectType | null
+	updateAdmin: boolean
+	setSelectedBP: any | undefined
 }
 export const ProjectBoard = (props: IProjectBoard) => {
 
 	const [ project, setProject ] = useState<projectType[]>([]);
+	const [ brokenProject, setBrokenProject ] = useState<any[]>([]);
+	const [ brokenHide, setBrokenHide ] = useState<boolean>(false);
 
 	//	theDay가 속하는 달의 project를 업데이트 해 준다.
 	useEffect(() => {
 		const theMonth = props.theDay.split('-')[1];
 		const getProject = async () => {
 			const result = await api.get('/project/month', {params: {theMonth: theMonth}})
-			setProject(result.data.map((ele: any) => {
+			setProject(result.data.PnR.map((ele: any) => {
 				//	타임존 반영해서 형식 변경
 				const origin = new Date(ele.project.date);
 				ele.project.date = `${origin.getFullYear()}-${origin.getMonth()+1 <= 9 ? '0'+(origin.getMonth()+1) : origin.getMonth()+1}-${origin.getDate() <= 9 ? '0' + origin.getDate() : origin.getDate()}`;
 				return {...ele};
 			}));
+			setBrokenProject(result.data.PnBP)
 		}
 		getProject();
-	}, [props.theDay, props.selectedProject])
+	}, [props.selectedProject])
+
 
 	return (
 		<div className="Board">
+			<input type="checkbox" checked={brokenHide} onChange={(e) => {
+				if(e.target.checked) setBrokenHide(true);
+				else setBrokenHide(false);
+				props.setSelectedProject(null)
+			}} />
+			<span onClick={() => {
+				if(brokenHide) setBrokenHide(false);
+				else setBrokenHide(true);
+				props.setSelectedProject(null)
+			}}>취소 된 일정 표시</span>
 			<table>
 				<thead>
 					<tr>
@@ -71,30 +88,31 @@ export const ProjectBoard = (props: IProjectBoard) => {
 				</thead>
 				<tbody>
 					{project.map((e: any, idx: number, arr: any) => {
+						if(!brokenHide){ if(e.project.status === 'broken') return; }
 						const paidCount = e.reservation.reduce((prev: any, curr: any) => {return curr.payment === 0 ? prev : curr.payment === null ? prev : prev+1}, 0)
 						let checkPayment = null;
-					e.reservation.forEach((ele: any) => {if(ele.check_payment !== null && ele.payment === 0) checkPayment = <span className="checkPaymentAlarm">!</span>})
+						e.reservation.forEach((ele: any) => {if(ele.check_payment !== null && ele.payment === 0) checkPayment = <span className="checkPaymentAlarm">?</span>})
+						const selectedClassName = (props.selectedProject !== null && e.project.id === props.selectedProject.project.id) ? 'SelectedTR' 
+							: (e.project.status === 'broken') ? 'BrokenReservationTR' : undefined;
 						return (
-							<tr key={'tr_No.'+idx} onClick={() => {
+							<tr key={'tr_No.'+idx} className={selectedClassName} onClick={() => {
 								props.setSelectedProject(e)
-								//	클릭하면 해당 tr의 배경색이 변하는 이벤트. 그러나 다른 tr을 선택 할 때 나머지가 사라지는 것을 못하겠다...
-								//	달려들면 할 수야 있겠지만 작은 이벤트인 만큼 작은 코드와 설계로 할 방법이 떠오르질 않네;;
-//								if(props.selectedProject?.project.id === e.project.id) ele.currentTarget.style.backgroundColor = "red";
-//								else ele.currentTarget.style.backgroundColor = "white";
-								}}>
-								<th>{idx === 0 ? e.project.date.substr(5) : arr[idx-1].project.date !== e.project.date ? e.project.date.substr(5) : ''}</th>
-								<th>{e.project.session}</th>
-								{e.project.status === 'pending' ? <th className="StatusPending">{e.project.status}</th>
-								: e.project.status === 'recruiting' ? <th className="StatusRecruiting">{e.project.status}</th>
-								: e.project.status === 'confirmed' ? <th className="StatusConfirmed">{e.project.status}</th>
+								props.setSelectedBP(brokenProject.find((ele: any) => ele.projectId === e.project.id));
+							}}>
+								<td>{idx === 0 ? e.project.date.substr(5) : arr[idx-1].project.date !== e.project.date ? e.project.date.substr(5) : ''}</td>
+								<td>{e.project.session}</td>
+								{e.project.status === 'pending' ? <td className="StatusPending">{e.project.status}</td>
+								: e.project.status === 'recruiting' ? <td className="StatusRecruiting">{e.project.status}</td>
+								: e.project.status === 'confirmed' ? <td className="StatusConfirmed">{e.project.status}</td>
+								: e.project.status === 'broken' ? <td className="StatusBroken">{e.project.status}</td>
 								: null}
-								<th>{e.project.subject.substr(0, 7)}{e.project.subject.length > 7 && '...'}</th>
-								<th>{e.project.name} / {e.project.mobileNumber.substr(3, 4)+'-'+e.project.mobileNumber.substr(7, 4)}</th>
-								<th>{e.project.exposeCount}</th>
-								<th>{e.project.likeCount}</th>
-								<th>{e.reservation[0].id === null ? 0 : e.reservation.length}</th>
-								<th>{checkPayment} {paidCount}/{e.reservation[0].id === null ? 0 : e.reservation.length}</th>
-								<th>{e.project.id}</th>
+								<td>{e.project.subject.substr(0, 13)}{e.project.subject.length > 13 && '...'}</td>
+								<td>{e.project.name} / {e.project.mobileNumber.substr(3, 4)+'-'+e.project.mobileNumber.substr(7, 4)}</td>
+								<td>{e.project.exposeCount}</td>
+								<td>{e.project.likeCount}</td>
+								<td>{e.reservation[0].id === null ? 0 : e.reservation.length}</td>
+								<td>{checkPayment} {paidCount}/{e.reservation[0].id === null ? 0 : e.reservation.length}</td>
+								<td>{e.project.id}</td>
 							</tr>
 						)
 					})}
@@ -108,8 +126,8 @@ export const ProjectBoard = (props: IProjectBoard) => {
 interface IProjectController {
 	selectedProject: projectType | null
 	setSelectedProject: Dispatch<SetStateAction<projectType | null>>
-	showDetail: boolean
-	setShowDetail: Dispatch<SetStateAction<boolean>>
+	showDetail: [boolean, string]
+	setShowDetail: Dispatch<SetStateAction<[boolean, string]>>
 }
 export const ProjectController = (props: IProjectController) => {
 
@@ -130,11 +148,20 @@ export const ProjectController = (props: IProjectController) => {
 			alert('승인되었습니다.');
 		}
 	}
+
+	//	프로젝트 확정 이벤트. recruiting 상태인 프로젝트에 취하는 액션
+	const confirmProject = () => {
+		if(window.confirm('정말로 확정하시겠습니까?')){
+			api.put('/project/status', {byWhom: 'admin', toDo: 'confirm', projectId: props.selectedProject?.project.id})
+			props.setSelectedProject(null);
+			alert('확정되었습니다.');
+		}
+	}
 	
 	//	프로젝트 반려 이벤트. pending 상태인 프로젝트에 취하는 액션
 	const rejectProject = () => {
 		if(window.confirm('이 결정은 되돌릴 수 없습니다. 정말로 반려하시겠습니까?')){
-			api.put('/project/status', {byWhom: 'admin', toDo: 'reject', projectId: props.selectedProject?.project.id, comment: comment})
+			api.put('/project/status', {byWhom: 'admin', toDo: 'reject', projectId: props.selectedProject?.project.id, projectStatus: props.selectedProject?.project.status, comment: comment})
 			props.setSelectedProject(null);
 			alert('반려되었습니다.');
 		}
@@ -150,7 +177,7 @@ export const ProjectController = (props: IProjectController) => {
 	//	프로젝트 취소 이벤트. recruiting 또는 confirmed 상태
 	const cancelProject = () => {
 		if(window.confirm('이 결정은 되돌릴 수 없습니다. 정말로 취소하시겠습니까?')){
-			api.put('/project/status', {byWhom: 'admin', toDo: 'cancel', projectId: props.selectedProject?.project.id, comment: comment})
+			api.put('/project/status', {byWhom: 'admin', toDo: 'cancel', projectId: props.selectedProject?.project.id, projectStatus: props.selectedProject?.project.status, comment: comment})
 			props.setSelectedProject(null);
 			alert('취소되었습니다. 제안자 및 참석 예약자들에게 정확히 안내 바랍니다.');
 		}
@@ -169,7 +196,7 @@ export const ProjectController = (props: IProjectController) => {
 		case 'pending':
 			actions = 
 				<>
-					<button onClick={() => {props.setShowDetail(!props.showDetail)}}>상세 보기</button>
+					<button onClick={() => {props.setShowDetail([!props.showDetail[0], ''])}}>상세 보기</button>
 					<button onClick={approveProject}>승인</button>
 					<button onClick={() => {setCommentOnOff(!commentOnOff)}}>반려</button>
 					{commentOnOff && commentFormForReject}
@@ -178,7 +205,8 @@ export const ProjectController = (props: IProjectController) => {
 		case 'recruiting':
 			actions = 
 				<>
-					<button onClick={() => {props.setShowDetail(!props.showDetail)}}>상세 보기</button>
+					<button onClick={() => {props.setShowDetail([!props.showDetail[0], ''])}}>상세 보기</button>
+					<button onClick={confirmProject}>최종 확정</button>
 					<button onClick={() => {setCommentOnOff(!commentOnOff)}}>강제 취소</button>
 					{commentOnOff && commentFormForCancel}
 				</>
@@ -186,22 +214,26 @@ export const ProjectController = (props: IProjectController) => {
 		case 'confirmed':
 			actions = 
 				<>
-					<button onClick={() => {props.setShowDetail(!props.showDetail)}}>상세 보기</button>
+					<button onClick={() => {props.setShowDetail([!props.showDetail[0], ''])}}>상세 보기</button>
 					<button className="Hide"></button>
 					<button onClick={() => {setCommentOnOff(!commentOnOff)}}>강제 취소</button>
 					{commentOnOff && commentFormForCancel}
 				</>
 			break;
-//		case 'rejected':
-//			break;
-//		case 'canceled':
-//			break;
+		case 'broken':
+			actions = 
+				<>
+					<button onClick={() => {props.setShowDetail([!props.showDetail[0], ''])}}>상세 보기</button>
+					<button onClick={() => {props.setShowDetail([!props.showDetail[0], 'broken'])}}>반려 보기</button>
+				</>
+			break;
 	}
 
+			//{props.selectedProject !== null && <div>{props.selectedProject?.project.status}</div>}
 	return (
 		<div className="Controller">
 			{actions}
-			{props.selectedProject !== null && <div>{props.selectedProject?.project.status}</div>}
+			<div>{props.selectedProject?.project.status}</div>
 		</div>
 	)
 }
@@ -209,6 +241,8 @@ export const ProjectController = (props: IProjectController) => {
 
 interface IProjectClipboard {
 	selectedProject: projectType | null
+	updateAdmin: boolean
+	setUpdateAdmin: any
 }
 export const ProjectClipboard = (props: IProjectClipboard) => {
 	//	클립보드로 복사하는 기능. navigator 전역 객체에서 지원한다.
@@ -224,7 +258,7 @@ export const ProjectClipboard = (props: IProjectClipboard) => {
 			<table>
 				<thead>
 					<tr>
-						<th>ID</th>
+						<th>프로젝트 ID</th>
 						<th>제목</th>
 						<th>전화번호</th>
 						<th>이름</th>
@@ -233,11 +267,11 @@ export const ProjectClipboard = (props: IProjectClipboard) => {
 				</thead>
 				<tbody>
 					<tr onClick={copyIt}>
-						<th>{id}</th>
-						<th>{subject}</th>
-						<th>{mobileNumber}</th>
-						<th>{name}</th>
-						<th>{date}</th>
+						<td>{id}</td>
+						<td>{subject}</td>
+						<td>{mobileNumber}</td>
+						<td>{name}</td>
+						<td>{date}</td>
 					</tr>
 				</tbody>
 			</table>
@@ -249,21 +283,27 @@ export const ProjectClipboard = (props: IProjectClipboard) => {
 					const depositCtrl = ele[4] !== null && ele[3] === 0 ? 
 						//	아래 button 두개에 들어가는 onClick이벤트는 현재 또는 상위 컴포넌트를 리렌더링 시키지 않는다. 즉 의도 한 대로 DB에 영향은 미치지만 user가 화면상에서 즉시 피드백 받지 못한다.
 						//	굳이 굳이 만들자면 만들 수는 있다. 그러나 이건 일단 그냥 두기로 한다. 추후 더 많은 리액트 훅과 디자인 패턴을 공부하면서 개선해 나갈 수 있을 것이다.
-						<th>
+						<td>
 							<button onClick={() => {
-								api.put('reservation', {RID: ele[0], payment: true});
+								if(window.confirm('입금 확인 되었습니까?')){
+									api.put('reservation', {RID: ele[0], payment: true});
+									props.setUpdateAdmin(!props.updateAdmin);
+								}
 							}}>입금확인</button>
 							<button onClick={() => {
-								api.put('reservation/askCheckPayment', {RID: ele[0], deny: true});
+								if(window.confirm('잘 확인했나요?')){
+									api.put('reservation/askCheckPayment', {RID: ele[0], deny: true});
+									props.setUpdateAdmin(!props.updateAdmin);
+								}
 							}}>요청취소</button>
-						</th>
+						</td>
 						: null;
 					return (
 						<tr key={'reservator_No.'+idx} onClick={copyIt}>
-							<th>{ele[0]}</th>
-							<th>{ele[1]}</th>
-							<th>{ele[2]}</th>
-							<th>{ele[3] !== 0 ? '납부완료' : ele[4] !== null ? <span className="checkPaymentAlert">확인 요청: {ele[4]}</span> : '미납'}</th>
+							<td>{ele[0]}</td>
+							<td>{ele[1]}</td>
+							<td>{ele[2]}</td>
+							<td>{ele[3] !== 0 ? '납부완료' : ele[4] !== null ? <span className="checkPaymentAlert">확인 요청: {ele[4]}</span> : '미납'}</td>
 							{depositCtrl}
 						</tr>
 					)
@@ -296,32 +336,46 @@ export const ProjectClipboard = (props: IProjectClipboard) => {
 
 
 interface IProjectDetail {
+	showWhat: string
 	selectedProject: projectType | null
+	selectedBP: any
 }
 export const ProjectDetail = (props: IProjectDetail) => {
-	return ( <div className="Detail">
-			<div>
-				{props.selectedProject?.project.subject}
+	if(props.showWhat === 'projectDetail'){
+		return ( 
+			<div className="Detail">
+				<div>
+					{props.selectedProject?.project.subject}
+				</div>
+				<div>
+					{props.selectedProject?.project.content}
+				</div>
 			</div>
-			<div>
-				{props.selectedProject?.project.content}
+		)
+	}else{
+		return ( 
+			<div className="Detail">
+				<div>
+					by : {props.selectedBP?.executor}<br/> status : {props.selectedBP?.brokeOn}
+				</div>
+				<div>
+					{props.selectedBP?.comment}
+				</div>
 			</div>
-		</div>
-	)
+		)
+	}
 }
 
 
-interface IProjectMisc {
-	removeAdminCookie: any
-	setMode: any
+interface ISelectedProjectSummary {
+	selectedProject: projectType | null
 }
-export const Misc = (props: IProjectMisc) => {
+export const SelectedProjectSummary = (props: ISelectedProjectSummary) => {
 	return (
-		<div className="Misc">
-			<button onClick={() => {
-				props.removeAdminCookie('adminLogin');
-				props.setMode(0);
-			}}>log out</button>
+		<div className="SelectedProjectSummary">
+			{props.selectedProject !== null && <div>{props.selectedProject?.project.date} (session: {props.selectedProject?.project.session})</div>}
+			{props.selectedProject !== null && <div>{props.selectedProject?.project.name}, {props.selectedProject?.project.mobileNumber}</div>}
+			{props.selectedProject !== null && <div>{props.selectedProject?.project.subject}</div>}
 		</div>
 	)
 }

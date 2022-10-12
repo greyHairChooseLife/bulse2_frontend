@@ -1,3 +1,7 @@
+/**
+ * 		root
+ **/
+
 :root {
 	--b-color: ivory;
 	--b-color: #ece6cc;
@@ -17,37 +21,49 @@ body {
 	background-color: var(--b-color);
 }
 
-.root>button {
-	width: 100px;
-	margin: 20px;
-	position: absolute;
-}
-.root>button:nth-child(2) {
-	margin-left: 140px;
-}
-.root>button:nth-child(3) {
-	margin-left: 260px;
-}
+
+/**
+ * 		App	
+ **/
 
 .App {
 	padding: 2vh 5vw;
 }
 
+
+/**
+ * 		EmptyPage	
+ **/
+
 .EmptyPage {
 	position: absolute;
 	width: 60vw;
 	height: 72vh;
-	right: 5vw;
+	right: 0;
 	top: 21vh;
+	padding-left: 4vw;
 	box-sizing: border-box;
 }
 .EmptyPage p {
-	position: absolute;
+	position: relative;
 	width: 100%;
-	text-align: center;
-	font-size: 2rem;
+	font-size: 1.9rem;
 	top: 30%;
+	color: var(--s-color);
+	word-spacing: 8px;
 }
+.EmptyPage p:nth-child(1) {
+	margin-left: -1.5vw;
+}
+.UnderLine {
+	border-bottom: solid 4px var(--m-color);
+	font-size: 2.1rem;
+}
+
+
+/**
+ * 		Logo	
+ **/
 
 .Logo {
 	position: absolute;
@@ -73,55 +89,10 @@ body {
 	left: 5vw;
 }
 
-.Admin {
-	box-sizing: border-box;
-	width: 100vw;
-	height: 100vh;
-	padding: 5vh 5vw 5vh 5vw;
-	display: grid;
-	grid-template-columns: repeat(5, 1fr);
-	grid-template-rows: repeat(8, 1fr);
-	grid-gap: 2vw;
-}
-
-.Admin>div:nth-child(1) {
-	grid-column: 1/3;
-	grid-row: 1/2;
-}
-
-.UserInfo {
-	box-sizing: border-box;
-	width: 100vw;
-	height: 100vh;
-	padding: 2vh 5vw 5vh 5vw;
-	display: grid;
-	grid-template-columns: 1fr 3fr;
-	grid-template-rows: 1fr;
-	grid-gap: 5vw;
-}
 
 /**
- * 		Erase it, later.
+ * 		Admin Ingress
  **/
-.Admin>div {
-	border: solid 1px red;
-}
-
-.UserInfo>div {
-}
-
-/**
- * 		misc
- **/
-
-.checkPaymentAlert {
-	font-size: 1rem;
-	color: blue;
-}
-.checkPaymentAlarm {
-	font-size: 2.5rem;
-	color: blue;
-}
 
 .IngressAdmin {
 	position: absolute;
@@ -151,3 +122,77 @@ body {
 	top: 30%;
 	left: 30%;
 }
+.IngressAdmin>p {
+	font-size: 1.3rem;
+	position: absolute;
+	width: 100%;
+	top: 1vh;
+	left: 30%;
+	word-spacing: 5px;
+}
+.IngressAdmin>span {
+	color: red;
+	font-size: 2rem;
+	position: absolute;
+	z-index: 2;
+	width: 70%;
+	padding: 3vw;
+	text-align: center;
+	background-color: lightsalmon;
+	box-sizing: border-box;
+	left: 15%;
+	bottom: 40%;
+}
+
+
+/**
+ * 		Admin
+ **/
+
+.Admin {
+	box-sizing: border-box;
+	width: 100vw;
+	height: 100vh;
+	padding: 5vh 5vw 5vh 5vw;
+	display: grid;
+	grid-template-columns: repeat(5, 1fr);
+	grid-template-rows: repeat(8, 1fr);
+	grid-gap: 2vw;
+}
+
+.AdminBtn {
+	position: absolute;
+	width: 3vw;
+	padding: 0.7vw;
+	border-radius: 2vw;
+	right: 1vw;
+	bottom: 1vw;
+	cursor: pointer;
+}
+.AdminBtn:hover {
+	background-color: var(--m-color);
+}
+
+
+/**
+ * 		UserInfo
+ **/
+
+.UserInfo {
+	box-sizing: border-box;
+	width: 100vw;
+	height: 100vh;
+	padding: 2vh 5vw 5vh 5vw;
+	display: grid;
+	grid-template-columns: 1fr 3fr;
+	grid-template-rows: 1fr;
+	grid-gap: 5vw;
+}
+
+/**
+ * 		Erase it, later.
+ **/
+
+/**
+ * 		misc
+ **/

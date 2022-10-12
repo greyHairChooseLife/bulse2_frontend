@@ -87,7 +87,7 @@ export const Schedule = (props: IscheduleProps) => {
 			},
 			onMouseEnter: (sessionNumber: number, previousState: any) => {
 				if(previousState[0] === 'logo' || previousState[0] === 'readProject'){
-					props.setPageMode('readProject');
+					props.setPageMode('logo');
 					props.setSession(sessionNumber);
 				}
 				const temp = [false, false, false];
@@ -385,7 +385,7 @@ export const Schedule = (props: IscheduleProps) => {
 		const statuses = [schedule1Status, schedule2Status, schedule3Status];
 		const setters = [setSchedule1Component, setSchedule2Component, setSchedule3Component];
 		const addOnSetters = [setAddOn1, setAddOn2, setAddOn3];
-		setters.forEach((ele: any, idx: number) => ele(makeCreatingComponent(idx+1)));
+		//setters.forEach((ele: any, idx: number) => ele(makeCreatingComponent(idx+1)));
 		statuses.forEach((ele: any, idx: number) => {
 			switch(ele){
 				case 'pending':
@@ -400,6 +400,9 @@ export const Schedule = (props: IscheduleProps) => {
 					setters[idx](makeConfirmedComponent(idx+1, previousState));
 					addOnSetters[idx](addOn.confirmed(idx+1));
 					break;
+				default:
+					setters[idx](makeCreatingComponent(idx+1));
+					addOnSetters[idx](null);
 			}
 		})
 	}, [schedule1Status, schedule2Status, schedule3Status, previousState, likedList, props.identity, props.reservationRecord]);
